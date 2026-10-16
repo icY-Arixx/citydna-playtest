@@ -1,0 +1,1778 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#b7dc88">
+  <meta name="description" content="沿着河岸铺一条路，让你的小镇慢慢长大。">
+  <title>CityDNA — Adaptive City Builder</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23add67c'/%3E%3Cpath d='M12 30L32 12l22 18H12' fill='%23d87852'/%3E%3Cpath d='M17 30h31v24H17z' fill='%23fff1d5'/%3E%3Cpath d='M28 40h9v14' fill='%238bb9c5'/%3E%3C/svg%3E">
+  <style>:root{font-family:"Segoe UI","Microsoft YaHei",sans-serif;color:#354451;background:#b7df8a;font-synthesis:none;--paper:#fffdf5;--ink:#354451;--muted:#7a858b;--blue:#438fc5;--shadow:0 4px 12px #354b3324;--ease:200ms ease}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}button,select{font:inherit;color:inherit}button{cursor:pointer;touch-action:manipulation;border:0;background:none}button:disabled{cursor:not-allowed}button:focus-visible,select:focus-visible,summary:focus-visible,[tabindex="0"]:focus-visible{outline:3px solid #297bc3;outline-offset:3px}svg{width:24px;height:24px;flex:none}h1,h2,h3,p{margin:0}[hidden]{display:none!important}.svg-library{position:absolute;width:0;height:0;overflow:hidden}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.game-shell{position:relative;isolation:isolate;width:100%;height:100dvh;min-height:400px;overflow:hidden;--grass:#b7dd8a;--water:#7dc9e8;--window-color:#8bbac4;--shade:transparent}
+.city-viewport,.world-ground,.world-shade{position:absolute;inset:0}.city-viewport{overflow:hidden;background:var(--grass);transition:background 1.2s ease}.world-ground{background:radial-gradient(ellipse at 15% 25%,#d8ec9eaa 0,transparent 28%),radial-gradient(ellipse at 64% 82%,#8ebd6955 0,transparent 34%),var(--grass);transition:background 1.2s ease}.world-ground:after{content:"";position:absolute;inset:0;background:var(--water);clip-path:polygon(86% 0,100% 0,100% 100%,94% 100%,94% 67%,86% 67%);transition:background 1.2s ease}.world-shade{pointer-events:none;z-index:6;background:var(--shade);transition:background 1.4s ease}.river-label{position:absolute;right:4.6%;top:46%;z-index:7;writing-mode:vertical-rl;font-size:13px;letter-spacing:7px;color:#f2fcff9c;pointer-events:none}.compass{position:absolute;left:27px;bottom:29px;display:flex;flex-direction:column;align-items:center;font-size:10px;color:#56774b99;line-height:1.5;pointer-events:none}.compass>span{font-size:26px;font-family:Georgia,serif}
+.map{position:absolute;inset:80px 4% 111px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr));isolation:isolate}.tile{position:relative;min-width:0;min-height:0;padding:0;border:1px solid transparent;background:#b8dc8c0b;border-radius:0;outline:none;isolation:isolate}.tile:nth-child(3n){background:#bfdf950d}.tile:nth-child(7n){background:#a9d47d0b}.tile:nth-child(11n){background:#c3e19a08}.tile:before{content:"";position:absolute;left:21%;bottom:19%;width:5px;height:7px;border-left:2px solid #759b5020;transform:rotate(-17deg);pointer-events:none}.tile.water{background:var(--water);border-color:transparent;transition:background 1.2s ease}.tile.water:before{height:3px;width:28%;border:0;border-radius:50%;background:#e4f6ff48;left:20%;bottom:35%;transform:rotate(-4deg);box-shadow:18px -20px 0 -1px #e4f6ff50}.tile.water:nth-child(12n-1){border-left:4px solid #d2d9a655}.tile.occupied{z-index:2}.tile.occupied:before{display:none}.tile .building-art{position:absolute;bottom:-3%;left:50%;transform:translateX(-50%);width:130%;height:145%;max-width:112px;max-height:116px;overflow:visible;pointer-events:none;filter:drop-shadow(3px 5px 1px #43603420);z-index:2}.tile[data-type="home"] .building-art{max-width:104px}.tile[data-type="home"][data-level="3"] .building-art{height:170%;max-height:130px}.tile[data-type="hall"] .building-art{max-width:124px;height:160%}.tile[data-type="factory"] .building-art{max-width:120px;height:155%}.tile[data-type="park"] .building-art{max-width:124px}.tile .decoration{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:78%;height:113%;max-width:79px;max-height:90px;pointer-events:none;opacity:.88}.tile .decoration.rock{width:15px;height:8px;background:#c3c3a0;border-radius:65% 70% 35% 30%;box-shadow:5px 3px 0 -2px #a8b18a;bottom:28%;left:32%}.tile .flowers{width:3px;height:3px;background:#f7e3a6;border-radius:50%;box-shadow:7px -3px #f9edbf,12px 5px #f1d494,-2px 8px #e9d99e;bottom:30%;left:40%}.tile.locked{background:#c4d49b55}.tile.locked .decoration{filter:saturate(.55);opacity:.65}.plot-lock{position:absolute;z-index:1;left:35%;top:32%;display:flex;align-items:center;gap:4px;font-size:10px;color:#7285579c;pointer-events:none}.plot-lock svg{width:13px;height:13px}.tile.selected:after{content:"";position:absolute;inset:8% 10%;border:2px solid #348fc5;border-radius:8px;background:#9ddcf51c;z-index:0}.tile:focus-visible{outline:2px solid #347c9e;outline-offset:-2px;z-index:9}.tile .building-level{position:absolute;bottom:3%;right:17%;font-size:9px;font-weight:700;color:#fff;border-radius:4px;min-width:15px;background:#5e8fba;padding:2px 4px;z-index:4;box-shadow:0 2px 2px #324d441f;pointer-events:none}.status-mark{position:absolute;left:50%;top:-20%;transform:translateX(-50%);display:grid;place-items:center;background:#fff5dd;border-radius:7px;padding:4px;box-shadow:0 3px 7px #4e532e24;z-index:7;pointer-events:none}.status-mark:after{content:"";position:absolute;bottom:-4px;left:43%;border:4px solid transparent;border-top-color:#fff5dd;border-bottom:0}.status-mark svg{width:17px;height:17px}.status-mark.disconnected{color:#b77b45}.tile.disconnected .building-art,.tile.unpowered .building-art{filter:saturate(.58) drop-shadow(3px 5px 1px #43603420)}
+.road-art{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);z-index:1;pointer-events:none}.road-sidewalk{stroke:#c7c6b8;stroke-width:55;stroke-linecap:round}.road-surface{stroke:#858b91;stroke-width:39;stroke-linecap:round}.road-marking{stroke:#eee9cc;stroke-width:1.5;stroke-dasharray:7 7;stroke-linecap:butt}.street-light{position:absolute;width:2px;height:14px;background:#65717a;left:23%;bottom:65%;z-index:5;pointer-events:none}.street-light:before{content:"";position:absolute;width:7px;height:4px;left:-2px;top:0;border-radius:4px;background:#e2e7d3}.street-light:after{content:"";position:absolute;top:-12px;left:-20px;width:42px;height:35px;border-radius:50%;opacity:0;background:radial-gradient(#ffd88655,transparent 68%);transition:opacity 1s}
+.build-mode .tile{border-color:#f7fff04d}.build-mode .tile.locked{background:#bac49c80;border-color:#d2dec34d}.build-mode .tile.valid-preview{background:#77c89966;box-shadow:inset 0 0 0 2px #458f67}.build-mode .tile.invalid-preview{background:#e9a18a77;box-shadow:inset 0 0 0 2px #c06b53}.tile .ghost{position:absolute;inset:0;pointer-events:none;z-index:8;opacity:.58}.tile .ghost .building-art{filter:none}.tile .ghost-road{position:absolute;inset:26% 0;background:#838a90;border:3px solid #c6c5b5}.bulldoze-mode .tile.occupied:hover{box-shadow:inset 0 0 0 2px #d66d4c;background:#edb28e66}.popped .building-art{animation:build-pop 380ms ease-out}.tile.popped:after{content:"✦";position:absolute;top:0;left:10%;font-size:20px;color:#fff6c6;pointer-events:none;z-index:8;animation:spark 450ms ease-out forwards}.build-mode .tile.occupied:hover{background:#dddca544}.tile.suggested:after{content:"+";position:absolute;inset:25% 29%;display:grid;place-items:center;border:1px dashed #5b916b80;color:#68955da1;border-radius:6px;font-size:18px;pointer-events:none}
+.top-hud{position:absolute;top:18px;left:22px;right:22px;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;pointer-events:none}.hud-main,.hud-right{pointer-events:auto}.hud-main{display:flex;align-items:center;gap:19px;min-height:58px;background:#fffdf5f2;box-shadow:var(--shadow);border:1px solid #ffffffb3;border-radius:12px;padding:6px 18px 6px 9px;position:relative}.city-identity{display:flex;align-items:center;gap:7px;white-space:nowrap;padding:0 15px 0 0;border-right:1px solid #dbe0d0}.city-identity>svg{width:43px;height:43px}.city-identity>span{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.city-identity small{font-size:11px;font-weight:600;color:#8a9a7a}.city-identity strong{font-size:15px;font-weight:650;color:#486052}.hud-resources{display:flex;gap:23px;align-items:center}.resource{display:flex;align-items:center;gap:6px;position:relative;white-space:nowrap;cursor:help}.resource svg{height:22px;width:22px}.resource strong{font-size:16px;font-weight:650;font-variant-numeric:tabular-nums}.resource.warning strong{color:#c77a3d}.resource.changed strong{animation:count-pop 240ms ease}.save-status{position:absolute;right:-9px;top:-8px;display:grid;place-items:center;width:19px;height:19px;background:#6da573;color:#fff;border-radius:50%;font-size:12px;animation:save-in 200ms ease}.hud-right{display:flex;align-items:center;gap:10px}.time-controller{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#fffdf5f0;box-shadow:var(--shadow);border:1px solid #ffffffb3;border-radius:12px;min-height:58px}.scene-clock{display:flex;gap:8px;align-items:center}.scene-clock svg{width:25px;height:25px}.scene-clock>div{display:flex;flex-direction:column;gap:1px}.scene-clock strong{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}.scene-clock small{font-size:9px;color:#8c938d;white-space:nowrap}.time-buttons{display:flex;align-items:center;gap:3px}.time-buttons>button{display:grid;place-items:center;min-width:27px;height:30px;border-radius:6px;font-size:11px;font-weight:700}.time-buttons>button:hover{background:#e9eee2}.time-buttons>button.running{color:#fff;background:#5194c3}.round-button{display:grid;place-items:center;width:44px;height:44px;background:#fffdf5f2;border:1px solid #ffffffb3;border-radius:50%;box-shadow:var(--shadow);flex:none}.menu-open{margin-top:7px;color:#657986}.round-button:hover{background:#fff}.round-button svg{width:22px;height:22px}.mission-button{position:absolute;right:24px;top:97px;display:flex;gap:10px;align-items:center;padding:12px 15px;border:1px solid #ffffffb3;border-radius:10px;background:#fffdf5ed;box-shadow:var(--shadow);z-index:16;color:#6c928c;font-size:14px;font-weight:650}.mission-button svg{width:22px;height:22px}.mission-button i{position:absolute;right:-3px;top:-3px;width:10px;height:10px;background:#e9b457;border:2px solid #fffdf5;border-radius:50%}.mission-button.ready{color:#428b68;animation:goal-ready 380ms ease 2}.mission-button[aria-expanded="true"]{background:#ebf5ff;color:#397ba8}.welcome-hint{position:absolute;bottom:125px;left:50%;transform:translateX(-50%);padding:9px 16px;border-radius:8px;background:#fff9e6cf;box-shadow:0 2px 7px #64734712;font-size:12px;color:#7b855e;z-index:8;pointer-events:none;white-space:nowrap}
+.build-dock{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:21;display:flex;align-items:center;gap:5px;padding:7px 10px;background:#fffdf5f2;border:1px solid #fff9;border-bottom:3px solid #d7d7c8;border-radius:16px;box-shadow:0 5px 12px #4b65442b}.dock-category{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:75px;height:70px;border-radius:9px;padding:4px 9px 6px;transition:background var(--ease),transform var(--ease)}.dock-category>svg{width:43px;height:43px;overflow:visible}.dock-category>span{font-size:12px;color:#677260;font-weight:500}.dock-category:hover{background:#edf0e0;transform:translateY(-2px)}.dock-category.active{background:#e5f0f8}.dock-category.active>span{color:#4484af}.dock-category.active:after{content:"";position:absolute;bottom:-5px;width:20px;height:3px;border-radius:3px;background:#5c9fc9}.dock-category.bulldoze{border-left:1px solid #e1e2d5;margin-left:6px;border-radius:0 8px 8px 0;min-width:67px;padding-left:14px}.dock-category.bulldoze>svg{width:34px;height:34px;margin-bottom:7px}.dock-category.bulldoze.active{background:#fbe9df}.dock-category.bulldoze.active>span{color:#b9774e}.dock-category.bulldoze.active:after{background:#ce8c63}.building-tray{position:absolute;bottom:119px;left:50%;transform:translateX(-50%);z-index:23;border:1px solid #fff;background:var(--paper);border-radius:12px;box-shadow:var(--shadow);padding:12px;min-width:200px;max-width:calc(100% - 28px);animation:panel-in 180ms ease}.tray-heading{display:flex;align-items:center;justify-content:space-between;gap:25px;margin:0 2px 8px}.tray-heading strong{font-size:13px;font-weight:600}.close-panel{width:28px;height:28px;display:grid;place-items:center;border-radius:6px;color:#9b9e97;font-size:23px;font-weight:300;line-height:1;flex:none;padding:0}.close-panel:hover{background:#ecefe6;color:#5b6c72}.build-tools{display:flex;gap:10px}.build-tool{position:relative;display:grid;grid-template-columns:61px auto;grid-template-rows:auto auto;column-gap:10px;align-items:center;min-width:174px;text-align:left;border:1px solid #e6e7db;background:#f7f8ed;border-radius:8px;padding:10px 12px 10px 4px}.build-tool>svg{width:61px;height:61px;grid-row:1/3;overflow:visible}.build-tool strong{font-size:13px;font-weight:600;align-self:end;white-space:nowrap}.build-tool .cost{font-size:12px;color:#9d7a42;align-self:start;margin-top:7px;white-space:nowrap}.build-tool .cost span{color:#a28f77;font-size:11px;padding-left:6px}.build-tool:hover:not(:disabled){background:#eaf4f9;border-color:#9ebfd1}.build-tool.active{border-color:#6da6c7}.build-tool:disabled{opacity:.54;background:#eaece2}.locked-label{font-size:11px;color:#8a9185;margin-top:6px;align-self:start}.mode-bar{position:absolute;left:50%;bottom:126px;transform:translateX(-50%);display:flex;align-items:center;gap:20px;padding:9px 11px 9px 16px;background:#fffdf4ee;border:1px solid #fff;border-radius:8px;z-index:18;box-shadow:var(--shadow);max-width:calc(100% - 170px);white-space:nowrap}.mode-bar>span{font-size:12px;color:#536c62;overflow:hidden;text-overflow:ellipsis}.mode-bar>button{font-size:11px;border-left:1px solid #dce0d1;padding-left:12px;white-space:nowrap}.mode-bar kbd{font-family:inherit;font-size:9px;color:#a0a796;margin-left:4px}.bulldoze-mode .mode-bar{border-color:#e9c3a4}.bulldoze-mode .mode-bar>span{color:#b5714f}
+.scene-panel{position:absolute;z-index:24;right:24px;top:155px;width:306px;max-height:calc(100% - 275px);overflow:auto;background:var(--paper);border:1px solid #fff;border-bottom:3px solid #d9d9ca;border-radius:12px;padding:22px;box-shadow:var(--shadow);animation:panel-in 200ms ease;scrollbar-width:thin;scrollbar-color:#bac7ba transparent}.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px}.panel-heading small{font-size:11px;color:#8a9b83;font-weight:650}.panel-heading h2{font-size:18px;font-weight:650;margin-top:3px}.mission-panel>h3{font-size:15px;font-weight:600;margin-bottom:6px}.muted{font-size:13px;color:var(--muted);line-height:1.8}.mission-panel>.muted{font-size:12px}.journey-dots{display:flex;gap:5px;margin:18px 0 22px}.journey-dots span{flex:1;height:4px;border-radius:4px;background:#e4e8dc}.journey-dots .done{background:#85b084}.journey-dots .current{background:#69a1c3}.goals{display:flex;flex-direction:column;gap:17px}.goal{display:grid;grid-template-columns:17px 1fr auto;gap:7px;align-items:center}.goal-check{display:grid;place-items:center;width:16px;height:16px;border:1px solid #c7d1be;border-radius:50%;font-size:10px;color:white}.goal.done .goal-check{background:#7aac7c;border-color:#7aac7c}.goal-label{font-size:12px;line-height:1.5}.goal-value{font-size:11px;color:#98a08e;white-space:nowrap}.goal-progress{height:3px;background:#e8ecdf;grid-column:2/4;border-radius:2px;overflow:hidden}.goal-progress i{display:block;height:100%;background:#94ba8a;transition:width 200ms}.level-price{font-size:12px;line-height:1.9;color:#929887;padding-top:17px;margin-top:21px;border-top:1px solid #e8ebdf}.level-price b{font-weight:600;color:#a88a53}.level-price .lacking{color:#c87552}.button{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:8px;padding:12px 16px;font-size:13px;font-weight:600;border-bottom:3px solid transparent;transition:background var(--ease),transform var(--ease)}.button:hover:not(:disabled){filter:brightness(1.03);transform:translateY(-1px)}.button.primary{background:#5598c6;border-bottom-color:#3b7ba4;color:#fff}.button.secondary{background:#eef1e5;border-bottom-color:#d8dfcc;color:#6b7c68}.button.danger{background:#f1e5d9;border-bottom-color:#dfcab4;color:#a9764f}.button:disabled{background:#e5e9dd;border-bottom-color:#d7dfcf;color:#a6af9b;filter:none}.mission-panel>.button{width:100%;justify-content:space-between;margin-top:13px}.unlock-hint{font-size:11px;line-height:1.7;color:#91a080;margin-top:12px}.inspector-hero{display:flex;align-items:center;gap:13px}.inspector-hero svg{width:77px;height:77px;overflow:visible;background:#eef2df;border-radius:10px;padding:4px}.inspector-hero h3{font-size:18px;font-weight:600;margin-bottom:5px}.inspector-hero p{font-size:12px;color:#8b9684}.inspector-status{display:flex;align-items:center;gap:6px;margin:16px 0 13px;font-size:12px;color:#6c9669}.inspector-status:before{content:"";display:block;width:6px;height:6px;border-radius:50%;background:#87b079}.inspector-status.problem{color:#c08854}.inspector-status.problem:before{background:#dca468}.inspector-facts{margin:0;display:flex;flex-direction:column}.inspector-facts>div{display:flex;justify-content:space-between;gap:15px;font-size:13px;padding:10px 0;border-bottom:1px solid #edf0e5}.inspector-facts dt{color:#8a9586}.inspector-facts dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}.inspector-description{font-size:12px;line-height:1.8;color:#8e9887;margin:14px 0}.inspector-actions{display:flex;flex-direction:column;gap:8px}.inspector-actions .button{width:100%;font-size:12px;padding:11px 9px}.inspector-actions .remove{background:none;color:#b18a65;border:0;font-size:11px;padding:5px}.inspector-note{font-size:12px;line-height:1.8;color:#b3845c;margin:12px 0}
+.advisor-anchor{position:absolute;left:25px;bottom:128px;z-index:22;display:flex;align-items:center;flex-direction:column;gap:5px}.advisor-avatar{position:relative;display:grid;place-items:center;width:59px;height:59px;border-radius:50%;background:#fff9df;border:3px solid #fffdf5;box-shadow:var(--shadow);transition:transform var(--ease)}.advisor-avatar:hover{transform:translateY(-2px)}.advisor-avatar>svg{width:51px;height:51px;overflow:visible}.advisor-avatar>i{position:absolute;right:-2px;top:-3px;background:#e4ad53;border:2px solid #fff;width:18px;height:18px;border-radius:50%;font:700 11px "Segoe UI",sans-serif;display:grid;place-items:center;color:#fff}.advisor-anchor>span{font-size:10px;font-weight:650;color:#526e48;text-shadow:0 1px #eaffcb99;letter-spacing:.5px}.advisor-panel{position:absolute;z-index:25;left:25px;bottom:218px;width:307px;padding:20px;background:var(--paper);border:1px solid #fff;border-bottom:3px solid #d9d9ca;border-radius:12px;box-shadow:var(--shadow);animation:panel-in 200ms ease;max-height:calc(100% - 315px);overflow:auto}.advisor-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.advisor-heading>div{display:flex;align-items:center;gap:10px}.advisor-heading strong{font-size:15px;font-weight:650;color:#4a7fa6}.advisor-heading span{font-size:11px;color:#91a083}.advisor-panel h3{font-size:14px;font-weight:600;margin-bottom:8px}.advisor-panel>p{font-size:13px;color:#7b8978;line-height:1.95}.advisor-panel details{margin-top:15px;font-size:12px;color:#6d9baf}.advisor-panel details p{padding-top:10px;font-size:12px;line-height:1.9;color:#8d9984}.advisor-panel summary{cursor:pointer}.advisor-actions{display:flex;justify-content:space-between;gap:15px;margin-top:20px}.text-button{font-size:12px;color:#6288a0;padding:0}.text-button:hover{text-decoration:underline}
+dialog{color:var(--ink);background:var(--paper);border:1px solid white;border-bottom:4px solid #d3d9c8;border-radius:12px;padding:26px;width:510px;max-width:calc(100vw - 28px);max-height:85dvh;box-shadow:0 10px 40px #203c463b;scrollbar-width:thin;scrollbar-color:#bdc9b6 transparent}dialog::backdrop{background:#2b444d6b;backdrop-filter:blur(2px)}.dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:23px}.dialog-heading small{font-size:12px;color:#9aa38c}.dialog-heading h2{font-size:23px;font-weight:600;margin-top:5px}.dialog-actions{display:flex;gap:10px;flex-wrap:wrap;padding-top:20px;border-top:1px solid #e7eadf;margin-top:22px}.menu-dialog{width:380px}.menu-links{display:flex;flex-direction:column;gap:3px}.menu-links>button{display:flex;align-items:center;gap:16px;text-align:left;padding:14px 8px;border-radius:8px}.menu-links>button:hover{background:#eef3e8}.menu-links>button svg{width:26px;height:26px;color:#6d9fb7}.menu-links>button>span:not(.menu-glyph){flex:1;font-size:14px}.menu-links small{display:block;font-size:11px;color:#9aa28e;margin-top:5px}.menu-links b{font-size:20px;color:#a7b19a;font-weight:400}.menu-glyph{width:26px;height:26px;border:2px solid #a1b6ba;border-radius:50%;display:grid;place-items:center;font-size:16px;color:#7d9eaa}.lighting-options{margin-top:22px;padding-top:20px;border-top:1px solid #e5eadc}.lighting-options>span{font-size:12px;color:#929f89}.lighting-options>div{display:flex;gap:5px;margin-top:12px}.lighting-options button{padding:8px 10px;font-size:11px;background:#eef1e4;border-radius:6px;flex:1;white-space:nowrap}.lighting-options button[aria-pressed="true"]{background:#daeaf4;color:#4886ad}.about-details{font-size:11px;color:#9aa48f;margin-top:23px}.about-details summary{cursor:pointer}.about-details p{font-size:11px;line-height:1.9;color:#9aa48f;margin-top:10px}.help-list{padding-left:22px;display:flex;flex-direction:column;gap:19px}.help-list li{padding-left:3px;font-size:13px;color:#668d9d}.help-list b{font-weight:600;color:#5b716c}.help-list p{font-size:12px;line-height:1.9;color:#8a9683;margin-top:5px}.help-shortcuts{font-size:11px;color:#a1aa95;line-height:1.9;border-top:1px solid #e6eadf;padding-top:17px;margin-top:24px}#variant-field{margin-top:18px;font-size:12px;color:#9c9f93}select{width:100%;border:1px solid #d3decb;border-radius:6px;padding:11px;background:#f4f7ed;margin-top:8px;font-size:12px}.report-intro{display:flex;align-items:center;gap:15px;border-bottom:1px solid #e5eadf;padding-bottom:21px}.report-intro>svg{width:65px;height:65px;overflow:visible;background:#f4ead1;border-radius:50%;padding:5px}.report-style{font-size:20px;color:#5f8d8e;margin-bottom:6px}.report-intro p{font-size:12px;color:#8c9b85;line-height:1.9}.report-grid{display:grid;grid-template-columns:repeat(3,1fr);row-gap:19px;margin:23px 0}.report-stat{text-align:center}.report-stat strong{display:block;font-size:24px;font-weight:600;color:#587c81}.report-stat span{display:block;font-size:11px;color:#9aa48e;margin-top:7px}.report-section{padding-top:18px;margin-top:20px;border-top:1px solid #e5eadf}.report-section h3{font-size:14px;font-weight:600;margin-bottom:10px}.report-section p{font-size:12px;color:#8b9983;line-height:1.9}.timeline{list-style:none;margin:0;padding:0}.timeline li{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#7b917b;padding:9px 0}.timeline small{font-size:11px;color:#a0ab94}.report-export-hint{font-size:11px;color:#a0aa96;margin-top:20px;line-height:1.7}
+.toast{position:absolute;left:50%;bottom:126px;transform:translateX(-50%);z-index:40;padding:11px 19px;background:#fffaf0;border:1px solid #fff;border-bottom:3px solid #dfd9ba;border-radius:8px;color:#778464;font-size:13px;line-height:1.7;box-shadow:var(--shadow);max-width:calc(100% - 130px);animation:toast-in 180ms ease;pointer-events:none}.toast.error{background:#fff5e8;color:#b37c52;border-bottom-color:#e4bf9b;animation:shake 230ms ease}.debug-panel{position:absolute;right:22px;top:92px;bottom:120px;width:430px;max-width:calc(100% - 35px);z-index:45;background:#24323bf5;color:#cbdbe1;border:1px solid #566c73;border-radius:10px;padding:18px;overflow:auto;font-size:11px;box-shadow:0 8px 20px #172b3450}.debug-panel h2{font-size:15px}.debug-panel p{font-size:11px;line-height:1.8;white-space:pre-wrap;margin-bottom:15px}.debug-panel pre{font-family:Consolas,monospace;font-size:10px;white-space:pre-wrap;word-break:break-word;line-height:1.7}.debug-panel .button{font-size:11px;padding:9px 11px;margin:12px 0}.debug-panel .panel-heading{margin-bottom:13px}.debug-panel .close-panel{color:#aebfc7}.level-celebration{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#eaf4e459;backdrop-filter:blur(2px);pointer-events:auto;animation:celebrate-in 350ms ease}.level-celebration>p{font-size:14px;color:#5d8d99;font-weight:600}.level-celebration h2{font-size:38px;color:#43798f;margin:12px 0;letter-spacing:2px;text-shadow:0 2px #fff7}.level-celebration>span{font-size:17px;color:#75967b}.celebration-star{font-size:65px;color:#f4c764;line-height:1.2;text-shadow:0 3px #fff7}.level-celebration>div#celebration-unlocks{display:flex;align-items:center;gap:15px;margin:24px 0 20px;padding:11px 17px;background:#fffdf4e0;border-radius:10px;color:#7c8d73;box-shadow:var(--shadow);font-size:13px}.celebration-unlock{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px}.celebration-unlock svg{width:48px;height:48px;overflow:visible}.level-celebration>small{font-size:13px;color:#718b72}.city-leveling .map{animation:city-expand 2.6s ease}
+.game-shell[data-phase="sunset"]{--grass:#bed285;--water:#88bdd5;--shade:#e99a4a20;--window-color:#e7c279}.game-shell[data-phase="night"]{--grass:#526d76;--water:#3c708f;--shade:#142c634a;--window-color:#ffdf8a}.game-shell[data-phase="night"] .world-ground{background:radial-gradient(ellipse at 30% 55%,#63867c55,transparent 65%),var(--grass)}.game-shell[data-phase="night"] .tile{background:#5a73790b}.game-shell[data-phase="night"] .tile:nth-child(3n){background:#637c7e0b}.game-shell[data-phase="night"] .tile.water{background:var(--water)}.game-shell[data-phase="night"] .tile.locked{background:#50617250}.game-shell[data-phase="night"] .decoration{filter:brightness(.62) saturate(.65)}.game-shell[data-phase="night"] .building-art{filter:brightness(.86) saturate(.83) drop-shadow(3px 5px 2px #18304c55)}.game-shell[data-phase="night"] .road-surface{stroke:#62717f}.game-shell[data-phase="night"] .road-sidewalk{stroke:#8e9d9f}.game-shell[data-phase="night"] .road-marking{stroke:#b5b5aa}.game-shell[data-phase="night"] .street-light:before{background:#ffe6a5;box-shadow:0 0 6px #ffdc8e}.game-shell[data-phase="night"] .street-light:after{opacity:1}.game-shell[data-phase="night"] .advisor-anchor>span{color:#f5edc8;text-shadow:none}.game-shell[data-phase="night"] .compass{color:#d0dfcc88}.game-shell[data-phase="night"] .plot-lock{color:#c1cebd66}.game-shell[data-phase="night"] .tile.suggested:after{color:#e0e6b7a1;border-color:#d0dbb380}
+@keyframes build-pop{0%{transform:translateX(-50%) scale(.8)}55%{transform:translateX(-50%) scale(1.09)}100%{transform:translateX(-50%) scale(1)}}@keyframes spark{0%{opacity:0;transform:translateY(5px) scale(.5)}40%{opacity:1}100%{opacity:0;transform:translateY(-20px) scale(1.3)}}@keyframes panel-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes count-pop{50%{transform:translateY(-2px);color:#498dae}}@keyframes save-in{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}@keyframes goal-ready{50%{transform:translateY(-4px)}}@keyframes shake{25%,75%{margin-left:-3px}50%{margin-left:3px}}@keyframes toast-in{from{opacity:0;margin-bottom:-5px}to{opacity:1;margin-bottom:0}}@keyframes celebrate-in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}@keyframes city-expand{0%,100%{transform:scale(1)}35%,70%{transform:scale(.965)}}
+@media(min-width:1650px){.map{inset:90px 6% 115px}.tile .building-art{max-width:132px;max-height:140px}.tile[data-type="home"] .building-art{max-width:124px}.tile[data-type="hall"] .building-art,.tile[data-type="factory"] .building-art,.tile[data-type="park"] .building-art{max-width:143px}.tile[data-type="home"][data-level="3"] .building-art{max-height:160px}.tile .decoration{max-width:100px;max-height:118px}.hud-resources{gap:32px}.hud-main{padding-right:24px}.build-dock{bottom:24px}.dock-category{min-width:88px;height:78px}.dock-category>svg{width:49px;height:49px}.building-tray{bottom:132px}.mode-bar,.toast{bottom:139px}.advisor-anchor{bottom:143px}.advisor-panel{bottom:238px}.welcome-hint{bottom:140px}}
+@media(max-width:1140px){.top-hud{left:16px;right:16px;gap:10px}.hud-main{gap:12px;padding-right:12px}.hud-resources{gap:14px}.city-identity{padding-right:10px}.city-identity>svg{width:37px;height:37px}.city-identity strong{font-size:13px}.resource strong{font-size:14px}.resource svg{width:20px;height:20px}.time-controller{gap:8px;padding:9px}.hud-right{gap:8px}.scene-clock{gap:5px}.scene-clock svg{width:20px;height:20px}.time-buttons>button{min-width:25px}.map{inset:86px 3% 110px}.scene-panel{right:18px;width:292px}.tile .building-art{max-width:92px}.tile .decoration{max-width:67px}}
+@media(max-width:880px){.top-hud{top:14px;left:14px;right:14px}.hud-main{gap:9px;padding:7px 12px 7px 6px;min-height:54px}.hud-resources{gap:11px}.resource{gap:3px}.resource strong{font-size:13px}.resource svg{width:18px;height:18px}.city-identity{padding-right:8px;gap:4px}.city-identity strong{font-size:12px}.city-identity small{font-size:10px}.city-identity>svg{width:33px;height:33px}.time-controller{min-height:54px;padding:8px}.scene-clock>svg{display:none}.scene-clock small{font-size:8px}.scene-clock strong{font-size:13px}.time-buttons{gap:0}.time-buttons>button{min-width:22px;font-size:10px}.round-button{width:37px;height:37px}.menu-open{margin-top:8px}.hud-right{gap:6px}.mission-button{top:87px;right:16px;font-size:12px;padding:11px 12px}.scene-panel{top:141px;max-height:calc(100% - 250px)}.tile .building-art{max-width:79px}.tile[data-type="hall"] .building-art{max-width:92px}.dock-category{min-width:67px}}
+@media(max-width:650px){.game-shell{min-height:360px}.top-hud{top:max(12px,env(safe-area-inset-top));left:12px;right:12px;display:block}.hud-main{width:100%;flex-wrap:wrap;min-height:78px;gap:0;padding:6px 10px 9px;box-shadow:0 3px 9px #40543320}.city-identity{border:0;gap:5px;padding:0;min-height:30px}.city-identity>svg{width:31px;height:31px}.city-identity>span{flex-direction:row;gap:6px;align-items:center}.city-identity small{font-size:10px}.city-identity strong{font-size:12px}.hud-resources{width:100%;justify-content:space-between;margin-top:7px;gap:5px}.resource{gap:4px}.resource strong{font-size:13px}.resource svg{width:18px;height:18px}.hud-right{position:absolute;right:6px;top:5px;gap:2px}.time-controller{background:none;box-shadow:none;border:0;min-height:32px;padding:0;gap:5px}.scene-clock{gap:0}.scene-clock strong{font-size:11px}.scene-clock small{font-size:7px}.scene-clock svg{display:none}.time-buttons>button{height:27px;min-width:22px;font-size:9px}.round-button{width:29px;height:29px;box-shadow:none;background:none;border:0}.round-button svg{width:18px;height:18px}.menu-open{margin:0}.map{inset:116px 3% 111px}.tile .building-art{width:145%;height:112%;max-height:74px;max-width:62px;bottom:-4%}.tile[data-type="hall"] .building-art{height:130%;max-width:70px}.tile[data-type="home"][data-level="3"] .building-art{height:145%;max-height:89px}.tile[data-type="factory"] .building-art{height:125%}.tile .decoration{height:100%;width:115%;max-width:46px;max-height:63px}.tile .flowers{transform:scale(.75)}.tile .building-level{font-size:7px;min-width:12px;padding:1px 3px;right:4%;bottom:0}.status-mark{padding:3px;top:-10%;border-radius:5px}.status-mark svg{width:12px;height:12px}.plot-lock{font-size:7px;left:13%;gap:2px}.plot-lock svg{width:9px;height:9px}.street-light{height:10px;left:12%;bottom:60%}.street-light:before{width:5px;height:3px;left:-1px}.river-label{right:1.3%;top:45%;font-size:9px;letter-spacing:5px}.compass{display:none}.mission-button{top:104px;right:13px;padding:9px 11px;gap:7px;font-size:12px;border-radius:8px}.mission-button svg{width:18px;height:18px}.build-dock{bottom:max(12px,env(safe-area-inset-bottom));width:calc(100% - 24px);gap:1px;padding:5px 5px 7px;border-radius:13px;justify-content:space-between}.dock-category{min-width:0;flex:1;padding:3px 1px;height:64px;gap:3px}.dock-category>svg{width:35px;height:35px}.dock-category>span{font-size:10px}.dock-category.bulldoze{min-width:0;margin-left:3px;padding-left:5px}.dock-category.bulldoze>svg{width:27px;height:27px;margin-bottom:7px}.dock-category.active:after{bottom:-5px;width:17px}.building-tray{bottom:103px;padding:10px;min-width:184px}.build-tool{min-width:148px;grid-template-columns:48px auto;padding:8px 8px 8px 2px;column-gap:6px}.build-tool>svg{width:48px;height:48px}.build-tool strong{font-size:12px}.build-tool .cost{font-size:11px}.build-tool .cost span{font-size:10px;padding-left:4px}.build-tools{gap:7px}.tray-heading{margin-bottom:6px}.mode-bar{bottom:108px;left:88px;right:12px;transform:none;max-width:none;justify-content:space-between;gap:7px;padding:8px 9px 8px 11px}.mode-bar>span{font-size:10px}.mode-bar>button{font-size:10px;padding-left:8px}.mode-bar kbd{display:none}.advisor-anchor{bottom:109px;left:16px;gap:4px}.advisor-avatar{width:47px;height:47px;border-width:2px}.advisor-avatar>svg{width:42px;height:42px}.advisor-anchor>span{font-size:8px}.advisor-avatar>i{width:16px;height:16px;font-size:10px}.advisor-panel{left:13px;right:13px;bottom:178px;width:auto;max-height:calc(100% - 280px);padding:19px}.scene-panel{left:12px;right:12px;bottom:103px;top:auto;width:auto;max-height:58%;border-radius:13px;padding:20px}.scene-panel:before{content:"";display:block;width:30px;height:3px;background:#d9dfd0;border-radius:3px;margin:-9px auto 12px}.panel-heading{margin-bottom:13px}.mission-panel>.muted{font-size:11px}.goals{gap:13px}.goal-label{font-size:12px}.mission-panel>h3{font-size:15px}.journey-dots{margin:15px 0 19px}.inspector-hero svg{width:65px;height:65px}.inspector-facts{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}.inspector-facts>div{font-size:12px;padding:8px 0;gap:5px}.inspector-description{margin:12px 0;font-size:11px}.inspector-actions .button{padding:10px;font-size:12px}.inspector-actions{gap:5px}.inspector-status{margin:12px 0;font-size:11px}.inspector-note{font-size:11px;margin:10px 0}.welcome-hint{font-size:10px;bottom:106px;left:87px;right:13px;transform:none;text-align:center;padding:9px 8px;white-space:normal}.toast{bottom:108px;left:85px;right:12px;transform:none;max-width:none;font-size:11px;padding:10px 12px}.level-celebration h2{font-size:32px}.level-celebration>small{font-size:12px}.level-celebration>div#celebration-unlocks{gap:10px;font-size:12px}.celebration-unlock svg{width:40px;height:40px}dialog{padding:22px;max-height:84dvh}.dialog-heading h2{font-size:22px}.dialog-heading small{font-size:11px}.dialog-actions .button{font-size:12px;padding:11px 13px}.timeline li{font-size:11px}.timeline small{font-size:10px}.debug-panel{left:12px;right:12px;top:105px;bottom:103px;width:auto;max-width:none}.report-grid{row-gap:20px}.report-stat strong{font-size:22px}.report-stat span{font-size:10px}}
+@media(max-height:620px) and (min-width:651px){.top-hud{top:10px}.hud-main,.time-controller{min-height:49px}.map{inset:63px 5% 90px}.build-dock{bottom:10px;padding:4px 8px}.dock-category{height:60px;min-width:66px}.dock-category>svg{width:35px;height:35px}.dock-category>span{font-size:10px}.advisor-anchor{bottom:101px}.advisor-panel{bottom:185px;max-height:calc(100% - 260px)}.mission-button{top:75px}.scene-panel{top:128px;max-height:calc(100% - 226px);padding:16px}.building-tray{bottom:98px}.mode-bar,.toast,.welcome-hint{bottom:105px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+.locked-label svg{width:11px;height:11px;vertical-align:-1px}.building-tray{animation:tray-in 180ms ease}@keyframes tray-in{from{opacity:0;margin-bottom:-6px}to{opacity:1;margin-bottom:0}}
+.tile .decoration.flowers{width:3px;height:3px;max-width:none;max-height:none}
+
+/* V0.3: DNA remains a mayor card, shown only at milestones and in the report. */
+.brand-subtitle{font-size:11px;color:#7b998d;margin-top:5px;letter-spacing:.4px}.clock-note{font-size:11px;line-height:1.9;color:#87947b;border-top:1px solid #e5eadc;padding:17px 0;margin-top:12px}#demo-open{width:100%;font-size:12px}.dna-card{width:100%;padding:18px 20px;background:linear-gradient(130deg,#edf3dc,#f9f5e7);border:1px solid #fff;border-bottom:3px solid #d4dfc0;border-radius:13px;color:#587365}.dna-card>small{display:block;text-transform:uppercase;letter-spacing:1.5px;font-size:10px;color:#8d9c7e}.dna-card>strong{display:block;font-size:23px;font-weight:600;margin:7px 0 14px}.dna-attribute{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:10px;font-size:12px}.dna-attribute>b{font-size:12px;color:#6d9183}.dna-attribute>div{grid-column:1/-1;height:6px;border-radius:4px;background:#dce4ce;overflow:hidden}.dna-attribute i{display:block;height:100%;border-radius:4px;background:#8cb8a0}.dna-attribute:nth-of-type(2) i{background:#d3b96f}.dna-attribute:nth-of-type(3) i{background:#8bac72}.dna-attribute:nth-of-type(4) i{background:#89acbf}.city-story{font-size:12px;line-height:1.9;color:#81917d;margin-top:20px}.report-brain-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px;color:#84947c;margin:18px 0 24px}.report-intro{padding-top:17px}.adaptive-challenge{margin-top:22px;padding-top:18px;border-top:1px solid #dfe8d3}.challenge-heading{display:flex;justify-content:space-between;color:#8fa17e;font-size:10px}.challenge-heading>span{color:#67928d}.adaptive-challenge h3{font-size:16px;margin:9px 0;color:#5a8986}.adaptive-challenge>p{font-size:11px;line-height:1.8;color:#8b987f;margin:9px 0 14px}.challenge-goal{display:flex;justify-content:space-between;gap:8px;font-size:11px;padding:7px 0;color:#89947f}.challenge-goal b{font-size:10px;white-space:nowrap;font-weight:500}.challenge-goal.done{color:#599c83}.adaptive-challenge>small{display:block;font-size:10px;line-height:1.9;color:#92a080;margin-top:10px}.locate-button{width:100%;font-size:12px;margin-top:17px}.advisor-panel{overflow:auto}.advisor-actions{gap:10px}.tile.located:after{content:"";position:absolute;inset:3%;border:3px solid var(--locate-color);background:color-mix(in srgb,var(--locate-color) 20%,transparent);border-radius:8px;z-index:9;pointer-events:none;box-shadow:0 0 13px var(--locate-color);animation:locate-pulse 1s ease-in-out infinite}.tile.located-yellow{--locate-color:#ffe26a}.tile.located-red{--locate-color:#ed805f}.tile.located-green{--locate-color:#5ce0a3}.tile.located-orange{--locate-color:#ffab57}@keyframes locate-pulse{50%{opacity:.5}}.game-shell[data-phase="dawn"]{--grass:#9dbba0;--water:#82aec2;--shade:#b6a0da20;--window-color:#ffe5b4}.level-celebration{overflow:auto;justify-content:flex-start;padding:24px 12px;background:#eaf4e4df}.level-celebration .celebration-star{font-size:34px}.level-celebration h2{font-size:27px;margin:5px 0}.level-celebration>div#celebration-unlocks{margin:12px 0;padding:7px 15px}.celebration-unlock svg{width:32px;height:32px}#celebration-dna{width:290px;max-width:100%;margin:5px 0 13px}#celebration-challenge{font-size:12px;margin-bottom:12px;max-width:95%;text-align:center}.demo-choices{display:grid;grid-template-columns:1fr;gap:10px;margin:20px 0}.demo-choices small{font-size:10px;font-weight:400}.import-label{display:block;font-size:12px;color:#7a8d76;margin:20px 0}#import-save{display:block;max-width:100%;margin-top:10px;font-size:11px}#import-feedback{font-size:12px;line-height:1.8;color:#b17a50;margin-top:15px}.resource#power-chip strong{font-variant-numeric:tabular-nums}.level-celebration[hidden]{display:none}
+@media(min-height:850px){.level-celebration{justify-content:center}}@media(max-width:650px){.dna-card{padding:15px}.dna-card>strong{font-size:20px}.level-celebration{padding-top:22px}.level-celebration h2{font-size:24px}.level-celebration>div#celebration-unlocks{margin:9px 0}.tile.located:after{border-width:2px}.resource#power-chip strong{font-size:11px}.report-brain-stats{grid-template-columns:1fr}.adaptive-challenge{margin-top:18px}}
+
+/* V0.4 — the city remains the main screen. */
+.tile.lens-tile:before{display:block;width:auto;height:auto;transform:none}
+.dna-attribute.locked>div,.dna-attribute.insufficient_data>div{background:repeating-linear-gradient(110deg,#dee5d1 0 5px,#e9eddf 5px 10px)}.dna-attribute>small{grid-column:1/-1;font-size:9px;line-height:1.7;color:#8b9a7f}.dna-attribute.locked>b{color:#9da78d}.city-traits-section{margin-top:20px;padding-top:17px;border-top:1px solid #dfe8d3}.city-traits-section>h3{font-size:13px;margin-bottom:10px;color:#748f78}.trait-card{display:flex;align-items:center;gap:10px;background:#eff3e3;border:1px solid #e0e8cc;border-radius:10px;padding:12px;margin:9px 0}.trait-card>span{font-size:24px;color:#bfa150}.trait-card strong{display:block;font-size:13px;color:#6b8c70}.trait-card small{display:block;font-size:10px;line-height:1.7;color:#96a282;margin-top:4px}.city-traits-section .muted{font-size:11px;line-height:1.8}.trait-landmarks{position:absolute;left:58%;bottom:-3%;display:flex;align-items:flex-end;gap:0;z-index:4;pointer-events:none}.trait-landmarks>i{display:block;position:relative;width:28px;height:35px;margin-left:-6px}.trait-landmarks svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(1px 2px 1px #4d6f6755)}.trait-landmarks>i:after{content:"✦";position:absolute;bottom:0;left:35%;background:#f6e5a9;border-radius:2px;font-size:7px;font-style:normal;color:#9a7d37;padding:0 2px}.report-traits{margin-top:16px}.challenge-story{border-left:2px solid #d6c68f;padding:1px 0 1px 11px;margin-top:15px}.challenge-story p{font-size:11px;color:#8d9b7e;line-height:1.85;margin:5px 0}.challenge-story strong{font-size:12px;color:#778e79}.challenge-story button{margin:8px 0;font-size:10px}.advisor-questions{display:grid;gap:6px;margin:15px 0}.quick-question{text-align:left;font-size:11px;line-height:1.6;padding:8px 11px;background:#edf2e5;border:1px solid #e0e8d5;border-radius:7px;color:#819877}.quick-question:hover,.quick-question.selected{background:#e1efe5;border-color:#b7d3c0;color:#5a8b78}.quick-question:disabled{opacity:.6;cursor:wait}.advisor-panel{max-height:calc(100dvh - 240px);overflow:auto;scrollbar-width:thin}.advisor-suggestions{font-size:11px;line-height:1.85;color:#7a917a;padding-left:16px;margin-top:10px}.advisor-pending{font-size:10px;color:#8b9f89}.advisor-panel>p{line-height:1.85}.planning-open{position:absolute;left:22px;top:98px;z-index:15;background:#fffdf0e8;border:1px solid #fff;border-bottom:3px solid #d2dfbf;border-radius:8px;padding:10px 15px;color:#769b89;font-size:12px;box-shadow:var(--shadow)}.planning-panel{position:absolute;left:22px;top:147px;width:266px;z-index:25;background:#fffdf1f5;border:1px solid #fff;border-bottom:3px solid #d4dfc0;border-radius:12px;padding:18px;box-shadow:var(--shadow)}.planning-panel h2{font-size:14px}.planning-panel .panel-heading{margin-bottom:13px}.planning-panel #planning-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}.planning-panel [data-lens]{padding:10px 5px;background:#edf2e4;border-radius:6px;font-size:11px;color:#7c947b;border:1px solid transparent}.planning-panel [aria-pressed="true"]{background:#dbeee2;border-color:#a4cdb4;color:#4f8f73}.planning-panel p{font-size:11px;color:#8b9c80;margin:15px 0 10px;line-height:1.8}.planning-legend{font-size:9px;line-height:1.9;color:#96a58a;display:grid}.tile.lens-tile:before{content:"";position:absolute;inset:0;background:var(--lens-fill);border:1px solid var(--lens-border,transparent);border-radius:4px;z-index:1;pointer-events:none}.tile.lens-park-area{--lens-fill:#52bf7555}.tile.lens-industry-area{--lens-fill:#db786b4d}.tile.lens-served-home{--lens-fill:#4cbe6c33;--lens-border:#4ea86b}.tile.lens-unserved-home{--lens-fill:#f3d46244;--lens-border:#dab746}.tile.lens-conflict-home{--lens-fill:#e1746344;--lens-border:#d76352}.tile.lens-isolated-road{--lens-fill:#edb16477;--lens-border:#d49149}.tile.lens-disconnected-building{--lens-fill:#da746166;--lens-border:#c76554}.tile.lens-connected-network{--lens-fill:#5baeb444;--lens-border:#619ea4}.tile.lens-served-home:before,.tile.lens-unserved-home:before,.tile.lens-conflict-home:before,.tile.lens-disconnected-building:before{border-width:3px;z-index:5}.debug-advisor-label{display:block;margin-top:15px;font-size:11px}.debug-advisor-label select{background:#314a51;color:#d7e5dd;border-color:#5a7372;font-size:11px}.level-celebration{padding-bottom:30px}
+@media(max-width:650px){.planning-open{left:13px;top:104px;padding:9px 11px;font-size:11px}.planning-panel{left:12px;top:150px;width:266px;max-width:calc(100% - 24px);padding:17px}.advisor-panel{max-height:calc(100dvh - 285px);bottom:177px}.quick-question{font-size:10px;padding:7px 10px}.advisor-questions{gap:5px}.advisor-suggestions{font-size:10px}.trait-landmarks>i{width:20px;height:26px}.dna-attribute>small{font-size:8px}.level-celebration .celebration-star{font-size:24px}.level-celebration h2{font-size:22px}.celebration-unlock svg{width:25px;height:25px}.planning-panel[hidden]{display:none}}
+/* V0.5: a single contextual hint, with all map and build controls usable. */
+.tutorial-hint{position:absolute;z-index:24;left:50%;top:155px;transform:translateX(-50%);width:min(450px,calc(100% - 32px));padding:13px 16px;border:1px solid #d8e8c8;border-radius:16px;background:#fffff2ed;box-shadow:0 7px 24px #28473720;display:flex;align-items:center;gap:14px;color:#315044;pointer-events:auto}
+.tutorial-hint[hidden]{display:none}.tutorial-hint small{display:block;font-size:11px;color:#71836b}.tutorial-hint strong{display:block;font-size:15px;margin-top:2px}.tutorial-hint p{font-size:12px;line-height:1.6;margin:3px 0 0}.tutorial-hint button{white-space:nowrap;font-size:11px}.tutorial-focus{outline:3px solid #f0ba4f!important;outline-offset:3px;box-shadow:0 0 0 6px #f0ba4f30!important}.playtest-privacy,.playtest-summary small{font-size:12px;line-height:1.7;color:#718278}.playtest-summary{border-top:1px solid #e2e9de;padding-top:14px}#challenge-accept{width:100%;margin:8px 0}#adaptive-challenge>small{display:block;line-height:1.6}
+@media(max-width:650px){.tutorial-hint{bottom:auto;top:150px;left:12px;right:65px;transform:none;width:auto;padding:9px 11px;border-radius:12px;gap:8px}.tutorial-hint strong{font-size:13px}.tutorial-hint p{font-size:11px}.tutorial-hint small{font-size:10px}.tutorial-hint button{font-size:10px;padding:3px}}
+</style>
+</head>
+<body>
+<svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="art-hall" viewBox="0 0 64 64"><ellipse cx="32" cy="53" rx="27" ry="7" fill="#608c68" opacity=".25"/><path d="M12 29h40v24H12z" fill="#e8d5a5"/><path d="M52 29l7-5v25l-7 4z" fill="#baa882"/><path d="M7 29L31 13l27 12-6 6H12z" fill="#617c75"/><path d="M30 8v10" stroke="#526b62" stroke-width="2"/><path d="M31 8h11l-3 4h-8z" fill="#eeb677"/><path d="M18 35h5v10h-5zm23 0h5v10h-5z" fill="var(--window-color, #819b94)"/><path d="M28 39a4 4 0 018 0v14h-8z" fill="#748b7d"/><path d="M26 55h12" stroke="#fbedd0" stroke-width="3"/></symbol>
+      <symbol id="art-home" viewBox="0 0 64 64"><ellipse cx="32" cy="53" rx="24" ry="6" fill="#5f9064" opacity=".22"/><path d="M15 29h31v23H15z" fill="#f6e7cb"/><path d="M46 29l8-6v24l-8 5z" fill="#cebb9f"/><path d="M9 30L29 12l25 11-8 9H15z" fill="#d4876c"/><path d="M29 12l-8 18H9z" fill="#e5a17f"/><path d="M20 35h7v8h-7zm15 0h7v8h-7z" fill="var(--window-color, #89b0a6)"/><path d="M29 42h7v10h-7z" fill="#9f7c61"/><path d="M41 13v9" stroke="#ac735e" stroke-width="5"/></symbol>
+      <symbol id="art-solar" viewBox="0 0 64 64"><ellipse cx="32" cy="53" rx="25" ry="6" fill="#5f9064" opacity=".22"/><path d="M23 34v17m19-17v17" stroke="#6d8177" stroke-width="4"/><path d="M15 15h39l-8 26H7z" fill="#527b92" stroke="#d0e2e1" stroke-width="2"/><path d="M28 15l-8 26m21-26l-8 26M12 24h39M9 33h39" stroke="#99c7d1" stroke-width="1.5"/><circle cx="52" cy="9" r="5" fill="#efd27f"/></symbol>
+      <symbol id="art-factory" viewBox="0 0 64 64"><ellipse cx="32" cy="53" rx="27" ry="6" fill="#5f9064" opacity=".22"/><path d="M10 31l13-8v8l13-8v8h17v21H10z" fill="#caa783"/><path d="M53 31l5-4v21l-5 4z" fill="#ae8967"/><path d="M42 12h8v20h-8z" fill="#947d6c"/><path d="M41 12h10" stroke="#b9a99a" stroke-width="3"/><path d="M17 37h7v8h-7zm13 0h7v8h-7zm13 0h6v8h-6z" fill="var(--window-color, #6e8d91)"/><path d="M42 8c-6-5 3-6 4-10" fill="none" stroke="#eef0de" stroke-width="5" stroke-linecap="round" opacity=".8"/></symbol>
+      <symbol id="art-park" viewBox="0 0 64 64"><ellipse cx="32" cy="49" rx="26" ry="10" fill="#86ad6c"/><path d="M11 51l40-6" stroke="#e7d5a6" stroke-width="6"/><path d="M23 32v16m21-18v14" stroke="#7f7859" stroke-width="4"/><circle cx="23" cy="24" r="13" fill="#61956a"/><circle cx="18" cy="19" r="8" fill="#84b47b"/><circle cx="44" cy="22" r="10" fill="#79a775"/><path d="M32 44h13m-11 0v7m9-7v5" stroke="#a67c5e" stroke-width="3"/><circle cx="13" cy="46" r="2" fill="#f1cc7b"/></symbol>
+      <symbol id="art-lab" viewBox="0 0 64 64"><ellipse cx="32" cy="53" rx="25" ry="6" fill="#5f9064" opacity=".22"/><path d="M15 21h29v32H15z" fill="#dce7e4"/><path d="M44 21l9-7v33l-9 6z" fill="#a6bfc0"/><path d="M15 21l10-7h28l-9 7z" fill="#eef5eb"/><path d="M21 27h17v5H21zm0 10h17v5H21z" fill="var(--window-color, #83b7c4)"/><path d="M26 46h8v7h-8z" fill="#879ea4"/><path d="M32 14V7m-5 0h10" stroke="#8b97b0" stroke-width="3"/><circle cx="32" cy="6" r="4" fill="#a2add8"/></symbol>
+      <symbol id="art-tree" viewBox="0 0 64 64"><ellipse cx="33" cy="51" rx="15" ry="5" fill="#5f9064" opacity=".15"/><path d="M32 29v22" stroke="#9a8f67" stroke-width="4"/><circle cx="32" cy="26" r="14" fill="#82ac7b"/><circle cx="28" cy="21" r="9" fill="#9bbd88"/></symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="icon-leaf" viewBox="0 0 24 24"><path d="M19 4C7 2 2 10 7 16s15 0 12-12zM5 20l10-10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+      <symbol id="icon-report" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="art-home-2" viewBox="0 0 64 64"><ellipse cx="32" cy="55" rx="25" ry="6" fill="#507b48" opacity=".23"/><path d="M14 19h32v35H14z" fill="#fff0d8"/><path d="M46 19l9-5v34l-9 6z" fill="#dbb58a"/><path d="M8 20L28 7l27 7-9 8H14z" fill="#d8794f"/><path d="M20 27h7v7h-7zm15 0h7v7h-7zM20 40h7v7h-7zm15 0h7v7h-7z" fill="var(--window-color,#80b9c5)"/><path d="M28 45h7v9h-7z" fill="#a27c5a"/><path d="M13 37h34" stroke="#e3caa5" stroke-width="2"/></symbol>
+<symbol id="art-home-3" viewBox="0 0 64 64"><ellipse cx="32" cy="56" rx="25" ry="6" fill="#507b48" opacity=".23"/><path d="M14 12h31v43H14z" fill="#f8e3b9"/><path d="M45 12l10-6v44l-10 5z" fill="#b9ac93"/><path d="M10 12l11-7h34l-10 9H14z" fill="#79949a"/><path d="M20 20h7v7h-7zm13 0h7v7h-7zM20 33h7v7h-7zm13 0h7v7h-7zM20 46h7v7h-7zm13 0h7v7h-7z" fill="var(--window-color,#79afc2)"/><path d="M14 29h31m-31 13h31" stroke="#d0bb96" stroke-width="2"/></symbol>
+<symbol id="art-aiva" viewBox="0 0 64 64"><path d="M17 53c1-12 29-12 31 0" fill="#4e8ab9"/><path d="M14 26c0-20 38-20 38 0v12c-3 14-35 14-38 0z" fill="#e5bc8b"/><path d="M13 29C6 6 41-2 51 17l2 13-10-13c-9 8-20 8-30 12" fill="#503e35"/><path d="M26 36q6 6 12 0" fill="none" stroke="#a86a51" stroke-width="2" stroke-linecap="round"/><circle cx="23" cy="30" r="2" fill="#4c4842"/><circle cx="41" cy="30" r="2" fill="#4c4842"/><path d="M9 22c4-22 40-22 46 0z" fill="#efc45c"/><path d="M7 22h50v5H7z" fill="#e6af41"/><path d="M30 5v16" stroke="#f8dc86" stroke-width="5"/></symbol>
+<symbol id="icon-coins" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="4" fill="#edbf4f"/><path d="M4 6v10c0 5 16 5 16 0V6" fill="#e4ac36"/><path d="M4 10c0 5 16 5 16 0M4 14c0 5 16 5 16 0" fill="none" stroke="#ffdf81" stroke-width="1.6"/><ellipse cx="12" cy="6" rx="8" ry="4" fill="#f8d573"/><path d="M12 4v4" stroke="#bf8e2c" stroke-width="2"/></symbol>
+<symbol id="icon-materials" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v11l-9 4-9-4z" fill="#c8945d"/><path d="M3 7l9 4 9-4-9-4z" fill="#e1b883"/><path d="M12 11v11M7 5l10 5v5" fill="none" stroke="#f4d6ad" stroke-width="2"/></symbol>
+<symbol id="icon-people" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#5d99ce"/><path d="M5 21v-5c0-7 14-7 14 0v5" fill="#5d99ce"/><path d="M4 10a3 3 0 000 6v5m16-11a3 3 0 010 6v5" fill="none" stroke="#96b9dc" stroke-width="3"/></symbol>
+<symbol id="icon-power" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 9 10-14h-7z" fill="#f0b94b" stroke="#d79a2e" stroke-linejoin="round"/></symbol>
+<symbol id="icon-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#eec56e"/><path d="M7 14q5 7 10 0" fill="none" stroke="#9f6d37" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="9" r="1.3" fill="#9f6d37"/><circle cx="16" cy="9" r="1.3" fill="#9f6d37"/></symbol>
+<symbol id="icon-target" viewBox="0 0 24 24"><circle cx="11" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="11" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 13L21 3m-5 0h5v5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="icon-settings" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/></symbol>
+<symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="#eebf56"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12l2 2M4 20l2-2M18 6l2-2" stroke="#dfac41" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="icon-moon" viewBox="0 0 24 24"><path d="M17 3a10 10 0 11-13 13A10 10 0 0017 3z" fill="#f4dca5"/></symbol>
+<symbol id="icon-bulldoze" viewBox="0 0 32 32"><path d="M4 21h22v7H4z" fill="#d19b4c"/><path d="M9 9h10v12H9zM19 15h8v7h-8" fill="#edbc54"/><path d="M11 11h6v7h-6" fill="#758f9b"/><path d="M27 16l3-2v15h-3" stroke="#9d7958" stroke-width="3"/><circle cx="9" cy="26" r="3" fill="#5c6670"/><circle cx="21" cy="26" r="3" fill="#5c6670"/></symbol>
+<symbol id="art-memorial-tree" viewBox="0 0 64 64"><ellipse cx="32" cy="55" rx="25" ry="6" fill="#70935c" opacity=".2"/><path d="M9 51h46l-5 8H14z" fill="#d8cba3"/><path d="M30 26h5v26h-5" fill="#a18c62"/><circle cx="32" cy="23" r="18" fill="#609977"/><circle cx="25" cy="16" r="10" fill="#91bd86"/><circle cx="39" cy="24" r="10" fill="#76ab7e"/><path d="M18 49h16v8H18z" fill="#e8c765"/><path d="M26 49v8" stroke="#fff0b4" stroke-width="2"/></symbol>
+<symbol id="art-beacon" viewBox="0 0 64 64"><ellipse cx="32" cy="55" rx="24" ry="6" fill="#70935c" opacity=".2"/><path d="M10 51h44l-5 8H15z" fill="#c5d1c4"/><path d="M28 17h8l7 35H21z" fill="#97b5bd"/><path d="M24 16h16v12H24z" fill="#ffe4a0" stroke="#91a9ac" stroke-width="3"/><path d="M20 16L32 5l12 11" fill="#668f9c"/><path d="M26 46h12" stroke="#e3eece" stroke-width="3"/></symbol>
+<symbol id="art-flower-square" viewBox="0 0 64 64"><ellipse cx="32" cy="51" rx="26" ry="10" fill="#bad295"/><path d="M12 48l39-3M29 36l4 23" stroke="#e5d2a2" stroke-width="5"/><circle cx="20" cy="35" r="11" fill="#82aa76"/><circle cx="43" cy="35" r="10" fill="#92b983"/><circle cx="18" cy="31" r="3" fill="#eec09f"/><circle cx="25" cy="38" r="3" fill="#f5d984"/><circle cx="41" cy="31" r="3" fill="#ecd39c"/><circle cx="47" cy="39" r="3" fill="#daa5a6"/><path d="M12 51h13v6H12z" fill="#d9bd70"/></symbol>
+<symbol id="art-monument" viewBox="0 0 64 64"><ellipse cx="32" cy="55" rx="23" ry="6" fill="#70935c" opacity=".2"/><path d="M11 51h42l-5 8H16z" fill="#c3ccb6"/><path d="M22 19l10-9 10 9v33H22z" fill="#a4bcb2"/><path d="M32 10v42h10V19z" fill="#819e97"/><path d="M32 22l7 9-7 9-7-9z" fill="#e4c36e"/><path d="M20 47h24v6H20z" fill="#d0d7bd"/></symbol>
+</defs>
+  </svg>
+  <main id="game-shell" class="game-shell" data-phase="day">
+    <section id="city-viewport" class="city-viewport" aria-label="城市建设场景">
+      <div class="world-ground" aria-hidden="true"></div>
+      <div id="map" class="map" role="group" aria-label="城市地图，12 列 10 行"></div>
+      <div class="world-shade" aria-hidden="true"></div>
+      <div class="river-label" aria-hidden="true">晴川河</div>
+      <div class="compass" aria-hidden="true"><span>↑</span>N</div>
+    </section>
+
+    <header class="top-hud" aria-label="城市资源与时间控制">
+      <div class="hud-main">
+        <button id="city-identity" class="city-identity" aria-label="查看城市任务"><svg><use href="#art-hall"/></svg><span><small id="city-level">Lv.1</small><strong id="city-name">落脚小镇</strong></span></button>
+        <div class="hud-resources">
+          <div id="coins-chip" class="resource" tabindex="0"><svg><use href="#icon-coins"/></svg><strong id="coins">1,200</strong></div>
+          <div id="materials-chip" class="resource" tabindex="0"><svg><use href="#icon-materials"/></svg><strong id="materials">40</strong></div>
+          <div id="population-chip" class="resource" tabindex="0"><svg><use href="#icon-people"/></svg><strong id="population">0</strong></div>
+          <div id="power-chip" class="resource" tabindex="0"><svg><use href="#icon-power"/></svg><strong id="power">0/6</strong></div>
+          <div id="happiness-chip" class="resource" tabindex="0"><svg><use href="#icon-smile"/></svg><strong id="happiness">82%</strong></div>
+        </div>
+        <span id="save-status" class="save-status" aria-label="已保存" hidden>✓</span>
+      </div>
+      <div class="hud-right">
+        <div class="time-controller"><div class="scene-clock"><svg id="phase-icon"><use href="#icon-sun"/></svg><div><strong id="scene-time">12:00</strong><small><span id="phase-label">白昼</span> · 第 <span id="day">1</span> 天</small></div></div><div class="time-buttons"><button id="auto-toggle" aria-label="开始时间" aria-pressed="false" title="播放 / 暂停">▶</button><button id="speed-toggle" aria-label="切换时间速度，当前一倍" title="切换 1 / 2 / 4 倍速度">1×</button><button id="next-day" aria-label="推进至下次结算" title="推进至下次结算（最多 3 模拟秒）">▸|</button></div></div>
+        <button id="menu-open" class="round-button menu-open" aria-label="游戏菜单" title="游戏菜单"><svg><use href="#icon-settings"/></svg></button>
+      </div>
+    </header>
+
+    <button id="mission-open" class="mission-button" aria-label="城市任务" aria-expanded="false"><svg><use href="#icon-target"/></svg><span id="mission-count">0/2</span><i id="mission-ready" hidden></i></button>
+    <aside id="tutorial-hint" class="tutorial-hint" aria-label="初任市长引导" hidden><div><small id="tutorial-count">初任市长 1/4</small><strong id="tutorial-title"></strong><p id="tutorial-copy"></p></div><button id="tutorial-skip" class="text-button">跳过引导</button></aside>
+    <button id="planning-open" class="planning-open" aria-expanded="false">◇ 规划视图</button><section id="planning-panel" class="planning-panel" aria-label="规划视图" hidden><div class="panel-heading"><h2>看看城市的另一面</h2><button id="planning-close" class="close-panel" aria-label="关闭规划视图">×</button></div><div id="planning-options"><button data-lens="PARK_COVERAGE" aria-pressed="false">公园覆盖</button><button data-lens="INDUSTRIAL_CONFLICT" aria-pressed="false">工业影响</button><button data-lens="ROAD_CONNECTIVITY" aria-pressed="false">道路连通</button><button data-lens="NONE" aria-pressed="true">收起图层</button></div><p id="planning-caption">选择一个视图，看看城市周边的服务。</p><div class="planning-legend"><span>绿色 · 服务与通路</span><span>黄色 · 待覆盖住宅</span><span>红色 · 工业影响或断路建筑</span><span>橙色 · 孤立道路</span></div></section><p id="welcome-hint" class="welcome-hint">从一条路、两座小房子开始。</p>
+
+    <section id="mission-panel" class="scene-panel mission-panel" aria-labelledby="mission-title" hidden><div class="panel-heading"><div><small id="stage-badge">Lv.1</small><h2 id="mission-title">城市任务</h2></div><button class="close-panel" aria-label="关闭城市任务">×</button></div><h3 id="stage-name">落脚小镇</h3><p id="stage-subtitle" class="muted"></p><div id="journey-dots" class="journey-dots"></div><div id="goals" class="goals"></div><div id="level-price" class="level-price"></div><button id="level-up" class="button primary" disabled>升级城市 <span>↗</span></button><p id="unlock-hint" class="unlock-hint"></p><section id="adaptive-challenge" class="adaptive-challenge" aria-label="专属挑战"></section><section class="city-traits-section"><h3>城市特质</h3><div id="city-traits"></div></section></section>
+    <section id="inspector" class="scene-panel building-inspector" aria-label="建筑详情" hidden></section>
+
+    <div class="advisor-anchor"><button id="advisor-open" class="advisor-avatar" aria-label="与市政助理 AIVA 交谈" aria-expanded="false"><svg><use href="#art-aiva"/></svg><i id="advisor-alert" hidden>!</i></button><span>AIVA</span></div>
+    <section id="advisor-panel" class="advisor-panel" aria-labelledby="advisor-title" hidden><div class="advisor-heading"><div><strong>AIVA</strong><span>市政助理</span></div><button class="close-panel" aria-label="关闭 AIVA 对话">×</button></div><div id="advisor-questions" class="advisor-questions" aria-label="你想了解什么"></div><p id="advisor-pending" class="advisor-pending" role="status" hidden>正在为这座城市整理建议…</p><h3 id="advisor-title"></h3><p id="advisor-text"></p><ul id="advisor-suggestions" class="advisor-suggestions"></ul><details id="advisor-details"><summary>为什么？</summary><p id="advisor-reason"></p></details><button id="advisor-locate" class="button primary locate-button" hidden>定位问题 ◎</button><div class="advisor-actions"><button id="advisor-mission" class="text-button">查看城市任务 ↗</button><button id="advisor-dismiss" class="text-button">稍后处理</button></div></section>
+
+    <div id="mode-bar" class="mode-bar" hidden><span id="mode-label"></span><button id="inspect-mode" title="Esc 取消">取消 <kbd>Esc</kbd></button></div>
+    <section id="building-tray" class="building-tray" aria-label="选择建筑" hidden><div class="tray-heading"><strong id="tray-title"></strong><button id="tray-close" class="close-panel" aria-label="关闭建筑选择">×</button></div><div id="build-tools" class="build-tools"></div></section>
+    <nav id="build-dock" class="build-dock" aria-label="建造工具栏"></nav>
+
+    <div id="city-feedback" class="sr-only" role="status" aria-live="polite"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <section id="debug-panel" class="debug-panel" aria-label="开发调试面板" hidden><div class="panel-heading"><h2>开发调试</h2><button id="debug-close" class="close-panel" aria-label="关闭调试面板">×</button></div><p id="debug-summary"></p><div id="debug-experiment"></div><label class="debug-advisor-label">Advisor Mode<select id="debug-advisor-mode"><option value="AUTO">AUTO</option><option value="LOCAL">LOCAL</option><option value="LLM">LLM</option></select></label><button id="debug-export" class="button secondary">导出状态与行为事件</button><pre id="debug-state"></pre></section>
+    <div id="level-celebration" class="level-celebration" role="status" hidden><div class="celebration-star" aria-hidden="true">✦</div><p>城市升级！</p><h2 id="celebration-name"></h2><span id="celebration-level"></span><div id="celebration-unlocks"></div><div id="celebration-dna"></div><p id="celebration-challenge"></p><button id="celebration-continue" class="button primary">继续建设 →</button></div>
+  </main>
+
+  <dialog id="menu-dialog" class="menu-dialog"><div class="dialog-heading"><div><small>休息一下，市长</small><h2>CityDNA</h2><p class="brand-subtitle">Adaptive City Builder</p></div><button class="dialog-close close-panel" aria-label="关闭游戏菜单">×</button></div><div class="menu-links"><button id="report-open"><svg><use href="#icon-report"/></svg><span>市长报告<small>回看城市的成长</small></span><b>›</b></button><button id="end-playtest"><span class="menu-glyph">✓</span><span>结束试玩 / 导出记录<small>回顾表现并分享匿名记录</small></span><b>›</b></button><button id="help-open"><span class="menu-glyph">?</span><span>怎么玩<small>建造、连通与城市升级</small></span><b>›</b></button><button id="new-game-open"><svg><use href="#icon-leaf"/></svg><span>新城市<small>从第一条街道重新开始</small></span><b>›</b></button></div><div class="clock-note" id="lighting-options">30 秒一个昼夜 · 3 模拟秒一次经营结算<br>夜间：太阳能 15% · 住宅耗电 125%</div><button id="demo-open" class="button secondary">演示城市 / 读取城市记录</button><details class="about-details"><summary>关于这座城市</summary><p>CityDNA — Adaptive City Builder V0.5。让同一座城市留下你的建设印记。AIVA 会根据这座城市的真实表现，解释问题并提出建议。城市档案保存在当前浏览器。</p></details></dialog>
+  <dialog id="report-dialog" class="report-dialog"><div class="dialog-heading"><div><small>每一次建设，都算数</small><h2>市长报告</h2></div><button class="close-panel dialog-close" aria-label="关闭市长报告">×</button></div><div id="report-content"></div><p class="playtest-privacy">匿名试玩记录只包含游戏操作、活跃时长和城市表现，不含姓名、邮箱、IP 或完整存档；不会自动上传。导出后由你自行决定是否分享。</p><div class="dialog-actions"><button id="export-playtest" class="button primary">导出匿名试玩记录 ↓</button><button id="export-report" class="button secondary">保存完整城市记录 ↓</button><button class="button secondary dialog-close">继续建设</button></div></dialog>
+  <dialog id="help-dialog"><div class="dialog-heading"><div><small>你的第一座城市</small><h2>从一条路开始</h2></div><button class="close-panel dialog-close" aria-label="关闭玩法说明">×</button></div><ol class="help-list"><li><b>选建筑，点空地</b><p>从下方建造栏选择分类，再选建筑。先在市政厅右侧道路两旁放置两座住宅。</p></li><li><b>通了路，城市才运转</b><p>建筑须紧邻接通市政厅的道路，按上下左右连接。缺电建筑会暂停运作，屋顶会出现提醒。</p></li><li><b>让时间往前走</b><p>顶部 ▶ 开始、Ⅱ 暂停，1× / 2× / 4× 调速，▸| 推进至下次结算。30 模拟秒完成一个昼夜，3 模拟秒结算一次经营日。夜间太阳能为 15%，住宅耗电为 125%。打开菜单或切到后台会暂停。</p></li><li><b>同一座城，慢慢长大</b><p>右侧靶心打开城市任务。完成目标并准备好资源后升级，保留城市并开放新街区。Lv.3 可升级单体建筑。</p></li><li><b>需要时，找 AIVA 聊聊</b><p>点击左下角的助理头像，看看城市里哪些事情值得先处理。</p></li></ol><p class="help-shortcuts">1 道路 · 2 住宅 · 3 电站 · 4 工厂 · 5 公园 · 6 研究中心 · B 拆除 · 空格 播放/暂停 · Esc 取消</p></dialog>
+  <dialog id="new-game-dialog"><div class="dialog-heading"><div><small>新的开始</small><h2>再建一座城市</h2></div><button class="close-panel dialog-close" aria-label="取消重新开始">×</button></div><p class="muted">当前城市会被替换。想留下这段旅程，可以先在市长报告中保存城市记录。</p><div id="variant-field" hidden><label for="variant">实验分组</label><select id="variant"><option value="A">A 组：Lv.3 起工厂成本 260</option><option value="B">B 组：Lv.3 起工厂成本 320</option></select></div><div class="dialog-actions"><button id="new-game-confirm" class="button primary">开始新城市</button><button class="button secondary dialog-close">取消</button></div></dialog>
+  <script type="module">
+const SAVE_VERSION = 1;
+const WIDTH = 12;
+const HEIGHT = 10;
+const MAX_BUILDING_LEVEL = 3;
+
+const BUILDINGS = Object.freeze({
+  road: { name: '道路', cost: 8, materials: 0, unlock: 1, shortcut: '1', description: '连接市政厅与建筑，四向相连才算通路。' },
+  home: { name: '住宅', cost: 120, materials: 4, unlock: 1, income: 18, power: 1, capacity: 12, shortcut: '2', description: '每级容纳 12 人，消耗 1 电力，每日税收 +18。' },
+  solar: { name: '太阳能站', cost: 180, materials: 6, unlock: 2, generation: 8, shortcut: '3', description: '每级提供 8 电力，连接道路后生效。' },
+  factory: { name: '工厂', cost: 220, materials: 8, unlock: 2, income: 16, production: 6, power: 2, shortcut: '4', description: '每级每日 +6 建材、+16 金币，消耗 2 电力，幸福度 −5。' },
+  park: { name: '公园', cost: 90, materials: 3, unlock: 2, upkeep: 2, happiness: 8, shortcut: '5', description: '每级幸福度 +8，每日维护费 2 金币。' },
+  lab: { name: '研究中心', cost: 480, materials: 20, unlock: 4, income: 30, research: 4, power: 4, shortcut: '6', description: '每级每日 +4 科技、+30 金币，消耗 4 电力。' },
+});
+
+const STAGES = Object.freeze([
+  { level: 1, name: '落脚小镇', subtitle: '让第一批居民住下来', color: '#78a78a', upgrade: { coins: 160, materials: 6 }, reward: { coins: 260, materials: 12 }, goals: [{ key: 'population', target: 24, label: '居民达到 24 人' }, { key: 'connectedBuildings', target: 2, label: '2 座建筑接入道路' }], unlockText: '太阳能站、工厂、公园' },
+  { level: 2, name: '生机社区', subtitle: '建立城市自己的供给', color: '#5ca3b3', upgrade: { coins: 280, materials: 12 }, reward: { coins: 400, materials: 18 }, goals: [{ key: 'population', target: 48, label: '居民达到 48 人' }, { key: 'activeFactories', target: 1, label: '1 座工厂正常生产' }, { key: 'activeSolar', target: 1, label: '1 座太阳能站供电' }], unlockText: '建筑升级与工业扩张' },
+  { level: 3, name: '工业新城', subtitle: '在增长与宜居之间找到平衡', color: '#d89c60', upgrade: { coins: 600, materials: 30 }, reward: { coins: 650, materials: 24 }, goals: [{ key: 'population', target: 84, label: '居民达到 84 人' }, { key: 'activeFactories', target: 2, label: '2 座工厂正常生产' }, { key: 'upgradedHomes', target: 2, label: '2 座住宅升至 2 级' }, { key: 'happiness', target: 85, label: '幸福度达到 85' }], unlockText: '研究中心、科技资源' },
+  { level: 4, name: '创新之都', subtitle: '让城市走向未来', color: '#8b91cc', upgrade: { coins: 900, materials: 60 }, reward: { coins: 1000, materials: 30 }, goals: [{ key: 'population', target: 120, label: '居民达到 120 人' }, { key: 'upgradedHomes', target: 4, label: '4 座住宅升至 2 级' }, { key: 'activeLabs', target: 1, label: '1 座研究中心正常运作' }, { key: 'research', target: 24, label: '累计获得 24 科技' }, { key: 'happiness', target: 85, label: '幸福度达到 85' }], unlockText: '未来城市、自由建设' },
+  { level: 5, name: '未来城市', subtitle: '这座城市，已经有了你的模样', color: '#8ebfaa', goals: [], unlockText: '继续扩张，或回顾你的市长报告' },
+]);
+
+function terrainAt(x, y) {
+  return (x >= 10 && y <= 6) || x === 11 ? 'water' : 'grass';
+}
+
+function buildCost(type, state) {
+  const def = BUILDINGS[type];
+  if (!def) return null;
+  const coins = type === 'factory' && state.level >= 3 ? (state.variant === 'B' ? 320 : 260) : def.cost;
+  return { coins, materials: def.materials };
+}
+
+function upgradeCost(building, state) {
+  const base = buildCost(building.type, state);
+  return { coins: Math.ceil(base.coins * building.level * 0.75), materials: base.materials * building.level };
+}
+
+
+// V0.3 可调参数集中于此；顾问文字没有权限更改这些规则。
+const CLOCK_RULES = Object.freeze({ cycleMs: 30000, settlementMs: 3000, dayEnd: 14000, sunsetEnd: 18000, nightEnd: 27000, nightSolar: .15, nightHomeDemand: 1.25 });
+const DNA_RULES = Object.freeze({
+  radius: 2,
+  growthWeights: { population: .35, income: .25, upgrades: .20, expansion: .20 },
+  growthScale: { population: 120, income: 180, upgrades: 6, expansion: 14 },
+  livabilityWeights: { happiness: .60, parkCoverage: .20, powerStability: .20 },
+  spatialWeights: { connectedRatio: .40, parkCoverage: .25, industrialSeparation: .25, roadEfficiency: .10 },
+  green: { solar: 2, park: 1.5, factory: 3, demand: .2, empty: 50 },
+  archetype: { industrialGrowth: 75, industrialGreen: 50, green: 70, livable: 75, spatial: 75, balancedMin: 55, balancedMax: 75, balancedSpread: 20 },
+});
+const CHALLENGE_RULES = Object.freeze({
+  thresholds: { greenGrowth: 50, greenScore: 50, factories: 2, shortageCount: 2, shortageWindowMs: 60000, nightReserve: .20, livableGrowth: 40, livability: 75, spatial: 65, roadEfficiency: .45 },
+  targets: { greenScore: 55, greenHappiness: 65, money: 100, happiness: 75, parkCoverage: .60, separation: .75, spatial: 65, roadEfficiency: .60, reserve: .20, populationStep: 12 },
+});
+
+
+
+const key = (x, y) => `${x},${y}`;
+const adjacent = (x, y) => [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]];
+const buildingAt = (state, x, y) => state.buildings.find(b => b.x === x && b.y === y);
+
+function createInitialState(variant = 'A') {
+  return {
+    version: SAVE_VERSION, level: 1, day: 1, coins: 1200, materials: 40, research: 0,
+    variant: variant === 'B' ? 'B' : 'A', nextId: 6, insolvent: false,
+    totals: { earned: 0, spent: 0, built: 0, upgraded: 0, removed: 0, bankruptcies: 0 },
+    milestones: [{ level: 1, day: 1 }],
+    buildings: [
+      { id: 1, type: 'hall', x: 1, y: 5, level: 1, invested: 0 },
+      ...[2, 3, 4, 5].map((x, i) => ({ id: i + 2, type: 'road', x, y: 5, level: 1, invested: 8 })),
+    ],
+  };
+}
+
+function getCityStats(state, phase = 'day') {
+  const hall = state.buildings.find(b => b.type === 'hall');
+  const roads = new Set(state.buildings.filter(b => b.type === 'road').map(b => key(b.x, b.y)));
+  const connectedRoads = new Set();
+  const queue = hall ? adjacent(hall.x, hall.y) : [];
+  for (let i = 0; i < queue.length; i++) {
+    const [x, y] = queue[i];
+    const k = key(x, y);
+    if (!roads.has(k) || connectedRoads.has(k)) continue;
+    connectedRoads.add(k);
+    queue.push(...adjacent(x, y));
+  }
+  const connected = state.buildings.filter(b => !['road', 'hall'].includes(b.type) && adjacent(b.x, b.y).some(([x, y]) => connectedRoads.has(key(x, y))));
+  const statuses = Object.fromEntries(state.buildings.map(b => [b.id, b.type === 'hall' ? 'active' : b.type === 'road' ? (connectedRoads.has(key(b.x, b.y)) ? 'active' : 'disconnected') : 'disconnected']));
+  const solarFactor = phase === 'night' ? CLOCK_RULES.nightSolar : 1;
+  const homeFactor = phase === 'night' ? CLOCK_RULES.nightHomeDemand : 1;
+  const powerNeed = b => (BUILDINGS[b.type].power || 0) * b.level * (b.type === 'home' ? homeFactor : 1);
+  const generation = Number((6 + connected.filter(b => b.type === 'solar').reduce((s, b) => s + BUILDINGS.solar.generation * b.level * solarFactor, 0)).toFixed(2));
+  const demand = connected.reduce((s, b) => s + powerNeed(b), 0);
+  let powerUsed = 0;
+  const active = [];
+  // 固定优先级与 ID 顺序；不依赖绘制顺序，也不依赖任何 AI 输出。
+  const priority = { solar: 0, park: 1, home: 2, factory: 3, lab: 4 };
+  for (const b of [...connected].sort((a, b) => priority[a.type] - priority[b.type] || a.id - b.id)) {
+    const need = powerNeed(b);
+    if (powerUsed + need <= generation) {
+      powerUsed += need;
+      statuses[b.id] = 'active';
+      active.push(b);
+    } else statuses[b.id] = 'unpowered';
+  }
+  const byType = type => active.filter(b => b.type === type);
+  const sum = (type, prop) => byType(type).reduce((n, b) => n + (BUILDINGS[type][prop] || 0) * b.level, 0);
+  const income = 8 + sum('home', 'income') + sum('factory', 'income') + sum('lab', 'income');
+  const upkeep = sum('park', 'upkeep');
+  const happiness = Math.max(0, Math.min(100, 82 + sum('park', 'happiness') - byType('factory').reduce((n, b) => n + 5 * b.level, 0) - 2 * Object.values(statuses).filter(s => s === 'unpowered').length));
+  return {
+    population: sum('home', 'capacity'), generation, demand, powerUsed, income, upkeep,
+    netIncome: income - upkeep, materialRate: sum('factory', 'production'), researchRate: sum('lab', 'research'),
+    happiness, connectedBuildings: connected.length, activeFactories: byType('factory').length,
+    activeSolar: byType('solar').length, activeLabs: byType('lab').length,
+    upgradedHomes: byType('home').filter(b => b.level >= 2).length,
+    disconnected: state.buildings.filter(b => b.type !== 'hall' && b.type !== 'road' && statuses[b.id] === 'disconnected').length,
+    unpowered: Object.values(statuses).filter(s => s === 'unpowered').length,
+    research: state.research, statuses, connectedRoads,
+  };
+}
+
+function getGoals(state, stats = getCityStats(state)) {
+  return STAGES[state.level - 1].goals.map(g => ({ ...g, value: stats[g.key], complete: stats[g.key] >= g.target }));
+}
+
+function canLevelUp(state, stats = getCityStats(state)) {
+  const stage = STAGES[state.level - 1];
+  return state.level < STAGES.length && getGoals(state, stats).every(g => g.complete) && state.coins >= stage.upgrade.coins && state.materials >= stage.upgrade.materials;
+}
+
+function applyAction(state, action, phase = 'day') {
+  const reject = message => ({ ok: false, state, message, events: [] });
+  if (!action || typeof action.type !== 'string') return reject('未知操作。');
+  const next = structuredClone(state);
+  const events = [];
+  const pay = cost => {
+    if (next.coins < cost.coins || next.materials < cost.materials) return false;
+    next.coins -= cost.coins;
+    next.materials -= cost.materials;
+    next.totals.spent += cost.coins;
+    return true;
+  };
+  let message;
+  if (action.type === 'build') {
+    const def = Object.hasOwn(BUILDINGS, action.buildingType) ? BUILDINGS[action.buildingType] : null;
+    if (!def) return reject('选择一种建筑。');
+    if (!Number.isInteger(action.x) || !Number.isInteger(action.y) || action.x < 0 || action.x >= WIDTH || action.y < 0 || action.y >= HEIGHT) return reject('这里超出了城市范围。');
+    if (terrainAt(action.x, action.y) === 'water') return reject('河流地块无法建造，请选择草地。');
+    if (buildingAt(state, action.x, action.y)) return reject('地块已被占用，选择空地或查看现有建筑。');
+    if (state.level < def.unlock) return reject(`${def.name}将在城市 Lv.${def.unlock} 解锁。`);
+    const cost = buildCost(action.buildingType, state);
+    if (!pay(cost)) return reject(`资源不足：需要 ${cost.coins} 金币、${cost.materials} 建材。`);
+    const b = { id: next.nextId++, type: action.buildingType, x: action.x, y: action.y, level: 1, invested: cost.coins };
+    next.buildings.push(b);
+    next.totals.built++;
+    events.push({ type: 'building_placed', buildingType: b.type, buildingId: b.id, x: b.x, y: b.y, cost });
+    const status = getCityStats(next, phase).statuses[b.id];
+    message = `${def.name}已建造${status === 'disconnected' ? '，请用道路接入市政厅' : status === 'unpowered' ? '，电力不足，暂未运作' : ''}。`;
+  } else if (action.type === 'upgrade') {
+    const b = next.buildings.find(b => b.id === action.id);
+    if (!b || !BUILDINGS[b.type] || b.type === 'road') return reject('这座建筑无法升级。');
+    if (state.level < 3) return reject('城市达到 Lv.3 后解锁建筑升级。');
+    if (b.level >= MAX_BUILDING_LEVEL) return reject('这座建筑已达到最高等级。');
+    const cost = upgradeCost(b, state);
+    if (!pay(cost)) return reject(`升级需要 ${cost.coins} 金币、${cost.materials} 建材。`);
+    b.level++;
+    b.invested += cost.coins;
+    next.totals.upgraded++;
+    events.push({ type: 'building_upgraded', buildingType: b.type, buildingId: b.id, x: b.x, y: b.y, level: b.level, cost });
+    message = `${BUILDINGS[b.type].name}已升至 Lv.${b.level}。`;
+  } else if (action.type === 'remove') {
+    const b = next.buildings.find(b => b.id === action.id);
+    if (!b) return reject('这里还没有建筑。');
+    if (b.type === 'hall') return reject('市政厅是城市的起点，无法拆除。');
+    const refund = Math.floor(b.invested * 0.4);
+    next.buildings = next.buildings.filter(item => item.id !== b.id);
+    next.coins += refund;
+    next.totals.removed++;
+    events.push({ type: 'building_removed', buildingType: b.type, buildingId: b.id, x: b.x, y: b.y, refund });
+    message = `已拆除${BUILDINGS[b.type].name}，返还 ${refund} 金币。`;
+  } else if (action.type === 'advance_day') {
+    const stats = getCityStats(state, phase);
+    const balance = next.coins + stats.netIncome;
+    next.coins = Math.max(0, balance);
+    next.materials += stats.materialRate;
+    next.research += stats.researchRate;
+    next.totals.earned += stats.income;
+    if (balance < 0 && !next.insolvent) {
+      next.totals.bankruptcies++;
+      events.push({ type: 'bankruptcy', shortfall: -balance });
+    }
+    next.insolvent = balance < 0;
+    next.day++;
+    events.push({ type: 'day_settled', netIncome: stats.netIncome, materials: stats.materialRate, research: stats.researchRate, population: stats.population, happiness: stats.happiness });
+    message = `第 ${next.day} 天 · ${stats.netIncome >= 0 ? '+' : ''}${stats.netIncome} 金币，+${stats.materialRate} 建材${stats.researchRate ? `，+${stats.researchRate} 科技` : ''}。`;
+  } else if (action.type === 'level_up') {
+    if (state.level >= STAGES.length) return reject('已到达未来城市，继续自由建设吧。');
+    if (!getGoals(state, getCityStats(state, phase)).every(g => g.complete)) return reject('还有城市目标未完成。');
+    const stage = STAGES[state.level - 1];
+    if (!pay(stage.upgrade)) return reject(`晋升需要 ${stage.upgrade.coins} 金币、${stage.upgrade.materials} 建材。`);
+    const entered = next.milestones.at(-1);
+    events.push({ type: 'level_complete', completedLevel: state.level, durationDays: state.day - entered.day, cost: stage.upgrade });
+    next.level++;
+    next.coins += stage.reward.coins;
+    next.materials += stage.reward.materials;
+    next.milestones.push({ level: next.level, day: next.day });
+    events.push({ type: 'level_started', enteredLevel: next.level });
+    message = `Level Up！你的城市已成长为「${STAGES[next.level - 1].name}」。`;
+  } else return reject('未知操作。');
+  return { ok: true, state: next, message, events };
+}
+
+function validateState(state) {
+  if (!state || state.version !== SAVE_VERSION) return false;
+  const int = (v, min, max = 1e9) => Number.isSafeInteger(v) && v >= min && v <= max;
+  if (!int(state.level, 1, 5) || !int(state.day, 1) || !int(state.coins, 0) || !int(state.materials, 0) || !int(state.research, 0) || !int(state.nextId, 2)) return false;
+  if (!['A', 'B'].includes(state.variant) || typeof state.insolvent !== 'boolean') return false;
+  if (!state.totals || !['earned', 'spent', 'built', 'upgraded', 'removed', 'bankruptcies'].every(k => int(state.totals[k], 0))) return false;
+  if (!Array.isArray(state.milestones) || state.milestones.length !== state.level || !state.milestones.every((m, i) => m && m.level === i + 1 && int(m.day, 1, state.day) && (i === 0 ? m.day === 1 : m.day >= state.milestones[i - 1].day))) return false;
+  if (!Array.isArray(state.buildings) || state.buildings.length > WIDTH * HEIGHT) return false;
+  const cells = new Set(), ids = new Set();
+  let halls = 0;
+  for (const b of state.buildings) {
+    if (!b || !int(b.id, 1, state.nextId - 1) || !int(b.x, 0, WIDTH - 1) || !int(b.y, 0, HEIGHT - 1) || !int(b.level, 1, MAX_BUILDING_LEVEL) || !int(b.invested, 0)) return false;
+    if (terrainAt(b.x, b.y) !== 'grass' || cells.has(key(b.x, b.y)) || ids.has(b.id)) return false;
+    if (b.type === 'hall') { halls++; if (b.x !== 1 || b.y !== 5 || b.level !== 1 || b.invested !== 0) return false; }
+    else if (!Object.hasOwn(BUILDINGS, b.type) || BUILDINGS[b.type].unlock > state.level || (b.type === 'road' && b.level !== 1) || (state.level < 3 && b.level !== 1)) return false;
+    cells.add(key(b.x, b.y)); ids.add(b.id);
+  }
+  return halls === 1;
+}
+
+
+
+function createClock() { return { elapsedMs: 0, speed: 1 }; }
+function phaseAtMs(elapsedMs) {
+  const t = ((elapsedMs % CLOCK_RULES.cycleMs) + CLOCK_RULES.cycleMs) % CLOCK_RULES.cycleMs;
+  return t < CLOCK_RULES.dayEnd ? 'day' : t < CLOCK_RULES.sunsetEnd ? 'sunset' : t < CLOCK_RULES.nightEnd ? 'night' : 'dawn';
+}
+function clockFace(clock) {
+  const phase = phaseAtMs(clock.elapsedMs), t = clock.elapsedMs % CLOCK_RULES.cycleMs;
+  // 分段映射钟面：06:00–18:00–20:00–05:00–06:00。
+  const minute = t < 14000 ? 360 + t / 14000 * 720 : t < 18000 ? 1080 + (t - 14000) / 4000 * 120 : t < 27000 ? (1200 + (t - 18000) / 9000 * 540) % 1440 : 300 + (t - 27000) / 3000 * 60;
+  return { phase, label: { day: '白昼', sunset: '黄昏', night: '夜晚', dawn: '黎明' }[phase], time: `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(Math.floor(minute % 60)).padStart(2, '0')}` };
+}
+function advanceClock(clock, realDeltaMs, paused = false) {
+  if (!Number.isFinite(realDeltaMs) || realDeltaMs < 0 || ![1, 2, 4].includes(clock.speed)) throw new Error('无效时钟输入');
+  const end = clock.elapsedMs + (paused ? 0 : Math.round(realDeltaMs * clock.speed));
+  const segments = [];
+  let cursor = clock.elapsedMs;
+  // 在相位和结算边界切片，4× 或单步也不会跳过一个夜晚或收入 tick。
+  while (cursor < end) {
+    const cycleStart = Math.floor(cursor / CLOCK_RULES.cycleMs) * CLOCK_RULES.cycleMs;
+    const boundary = [CLOCK_RULES.dayEnd, CLOCK_RULES.sunsetEnd, CLOCK_RULES.nightEnd, CLOCK_RULES.cycleMs].map(v => cycleStart + v).find(v => v > cursor);
+    const settlement = (Math.floor(cursor / CLOCK_RULES.settlementMs) + 1) * CLOCK_RULES.settlementMs;
+    const to = Math.min(end, boundary, settlement);
+    segments.push({ from: cursor, to, deltaMs: to - cursor, phase: phaseAtMs(cursor), settle: to === settlement });
+    cursor = to;
+  }
+  return { clock: { ...clock, elapsedMs: end }, segments };
+}
+
+
+
+const manhattan = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+const tileId = b => `${b.x},${b.y}`;
+function spatialMetrics(state, stats = getCityStats(state)) {
+  const buildings = state.buildings.filter(b => !['hall', 'road'].includes(b.type));
+  const homes = buildings.filter(b => b.type === 'home');
+  const parks = buildings.filter(b => b.type === 'park' && stats.statuses[b.id] === 'active');
+  const factories = buildings.filter(b => b.type === 'factory');
+  const roads = state.buildings.filter(b => b.type === 'road');
+  const coveredHomes = homes.filter(h => parks.some(p => manhattan(h, p) <= DNA_RULES.radius));
+  const conflicts = homes.flatMap(h => factories.filter(f => manhattan(h, f) <= DNA_RULES.radius).map(f => ({ homeId: h.id, factoryId: f.id })));
+  const conflictIds = new Set(conflicts.map(c => c.homeId));
+  const disconnected = buildings.filter(b => stats.statuses[b.id] === 'disconnected');
+  const connected = buildings.length - disconnected.length;
+  return {
+    connectedRatio: buildings.length ? connected / buildings.length : 1,
+    parkCoverage: homes.length ? coveredHomes.length / homes.length : 0,
+    industrialSeparation: homes.length ? (homes.length - conflictIds.size) / homes.length : 1,
+    roadEfficiency: roads.length ? Math.min(1, connected / roads.length) * stats.connectedRoads.size / roads.length : 0,
+    uncoveredHomeIds: homes.filter(h => !coveredHomes.includes(h)).map(h => h.id),
+    coveredHomeIds: coveredHomes.map(h => h.id), disconnectedIds: disconnected.map(b => b.id), conflicts,
+    homeCount: homes.length, roadCount: roads.length, connectedRoadCount: stats.connectedRoads.size,
+  };
+}
+
+
+
+const score100 = value => Math.round(Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0)));
+function cityDNA(state, history = {}) {
+  // DNA 描述建设结构，按白昼额定能力归一化，避免分数随灯光来回跳变。
+  const stats = getCityStats(state, 'day'), spatial = spatialMetrics(state, stats), r = DNA_RULES;
+  const normalized = {
+    population: stats.population / r.growthScale.population,
+    income: Math.max(0, stats.netIncome) / r.growthScale.income,
+    upgrades: state.totals.upgraded / r.growthScale.upgrades,
+    expansion: state.buildings.filter(b => !['road', 'hall'].includes(b.type)).length / r.growthScale.expansion,
+  };
+  const growth = score100(100 * Object.entries(r.growthWeights).reduce((s, [k, w]) => s + Math.min(1, normalized[k]) * w, 0));
+  const powerStability = history.elapsedMs > 0 ? 1 - Math.min(1, (history.shortageMs || 0) / history.elapsedMs) : 1;
+  const livability = score100(stats.happiness * r.livabilityWeights.happiness + 100 * spatial.parkCoverage * r.livabilityWeights.parkCoverage + 100 * powerStability * r.livabilityWeights.powerStability);
+  const sumLevels = type => state.buildings.filter(b => b.type === type && stats.statuses[b.id] === 'active').reduce((n, b) => n + b.level, 0);
+  const green = sumLevels('solar') * r.green.solar + sumLevels('park') * r.green.park;
+  const burden = sumLevels('factory') * r.green.factory + stats.demand * r.green.demand;
+  const sustainability = score100(green + burden ? 100 * green / (green + burden) : r.green.empty);
+  const spatialPlanning = score100(100 * Object.entries(r.spatialWeights).reduce((s, [k, w]) => s + spatial[k] * w, 0));
+  return { growth, livability, sustainability, spatialPlanning };
+}
+function mayorArchetype(dna) {
+  if (dna.growth && typeof dna.growth === 'object') dna = Object.fromEntries(Object.entries(dna).map(([k, d]) => [k, d.status === 'valid' ? d.value : null]));
+  const a = DNA_RULES.archetype;
+  if (dna.growth !== null && dna.sustainability !== null && dna.growth >= a.industrialGrowth && dna.sustainability < a.industrialGreen) return '工业扩张型';
+  if (dna.sustainability >= a.green) return '绿色规划者';
+  if (dna.livability >= a.livable) return '居民优先型';
+  if (dna.spatialPlanning >= a.spatial) return '空间规划型';
+  const values = Object.values(dna);
+  if (values.every(v => v !== null && v >= a.balancedMin && v <= a.balancedMax) && Math.max(...values) - Math.min(...values) <= a.balancedSpread) return '平衡发展型';
+  return '探索建设型';
+}
+
+// Canonical V0.4 contract. cityDNA() remains a V0.3 numeric compatibility adapter.
+function assessCityDNA(state, history = {}) {
+  const raw = cityDNA(state, history), stats = getCityStats(state), spatial = spatialMetrics(state);
+  const count = state.buildings.filter(b => !['road', 'hall'].includes(b.type)).length;
+  const homes = state.buildings.filter(b => b.type === 'home').length;
+  const greenTime = history.greenObservedMs || 0;
+  const mechanism = state.buildings.some(b => ['park', 'solar', 'factory'].includes(b.type));
+  const mature = greenTime >= 18000 || (state.level >= 3 && count >= 4 && mechanism);
+  const dimension = (value, status, confidence, note) => ({ value: status === 'valid' ? value : null, status, confidence: Number(confidence.toFixed(2)), note });
+  const ready = homes >= 2;
+  // Before parks / factories unlock, omit their coverage and separation weights.
+  const earlySpatial = score100(100 * (spatial.connectedRatio * .8 + spatial.roadEfficiency * .2));
+  const earlyLivability = score100(stats.happiness);
+  return {
+    growth: dimension(raw.growth, ready ? 'valid' : 'insufficient_data', Math.min(1, homes / 2), ready ? '基于已入住人口、收入、升级与建设。' : '先迎接两座住宅的居民，再观察城市增长。'),
+    livability: dimension(state.level < 2 ? earlyLivability : raw.livability, ready ? 'valid' : 'insufficient_data', Math.min(1, homes / 2), state.level < 2 ? '按当前居民幸福评估，尚不要求未开放的公园服务。' : '结合居民幸福、公园服务和已观察到的供电表现。'),
+    sustainability: dimension(raw.sustainability, state.level < 2 ? 'locked' : mature && mechanism ? 'valid' : 'insufficient_data', state.level < 2 ? 0 : mature && mechanism ? Math.min(1, .7 + greenTime / 60000) : Math.min(.6, greenTime / 30000), state.level < 2 ? '解锁工业和绿色设施后开始评估。' : '建设工业或绿色设施并观察至少 18 模拟秒；已进入成熟建设阶段的城市可直接评估。'),
+    spatialPlanning: dimension(state.level < 2 ? earlySpatial : raw.spatialPlanning, count >= 2 ? 'valid' : 'insufficient_data', Math.min(1, count / 4), state.level < 2 ? '仅评估道路与建筑连接，未开放的设施不扣分。' : '结合公园服务、工住分离、建筑通路与道路效率。'),
+  };
+}
+function dnaDisplay(dimension) { return dimension.status === 'locked' ? '--' : dimension.status === 'insufficient_data' ? '待观察' : String(dimension.value); }
+
+
+const CITY_TRAITS = Object.freeze({
+  GREEN_TRANSITION: { name: '绿色转型先锋', icon: '🌿', coins: 120, landmark: '纪念树', art: 'memorial-tree' },
+  POWER_RESILIENCE: { name: '电网守护者', icon: '⚡', coins: 120, landmark: '星光灯塔', art: 'beacon' },
+  LIVABLE_NEIGHBORHOOD: { name: '宜居典范', icon: '♥', coins: 120, landmark: '邻里花园', art: 'flower-square' },
+  SMART_PLANNING: { name: '规划能手', icon: '◇', coins: 120, landmark: '规划纪念碑', art: 'monument' },
+  BALANCED_EXPANSION: { name: '共建家园', icon: '✦', coins: 80, landmark: '成长之树', art: 'memorial-tree' },
+});
+function grantCityTrait(state, brain, challenge) {
+  brain.traits ||= []; brain.claimedChallengeRewards ||= [];
+  if (brain.claimedChallengeRewards.includes(challenge.id)) return null;
+  brain.claimedChallengeRewards.push(challenge.id);
+  const rule = CITY_TRAITS[challenge.type];
+  if (!rule) return null;
+  // Each trait grants its reward once per city; repeated stages cannot farm the same badge.
+  if (brain.traits.some(t => t.type === challenge.type)) return null;
+  const trait = { type: challenge.type, name: rule.name, earnedMs: brain.clock.elapsedMs, challengeId: challenge.id, coins: rule.coins, landmark: rule.landmark };
+  brain.traits.push(trait); state.coins += rule.coins;
+  return trait;
+}
+function migrateBrainV04(brain) {
+  const copy = structuredClone(brain);
+  copy.traits ||= []; copy.claimedChallengeRewards ||= [];
+  copy.history.greenObservedMs ||= 0;
+  // Legacy completions stay history, without retroactive currency grants on refresh.
+  for (const c of [...copy.archived, ...(copy.currentChallenge ? [copy.currentChallenge] : [])]) if (c.completed && !copy.claimedChallengeRewards.includes(c.id)) copy.claimedChallengeRewards.push(c.id);
+  return copy;
+}
+
+
+
+const CHALLENGE_NAMES = Object.freeze({ GREEN_TRANSITION: '让增长长出绿意', POWER_RESILIENCE: '点亮一整个夜晚', LIVABLE_NEIGHBORHOOD: '把街区还给生活', SMART_PLANNING: '让每一条路都有意义', BALANCED_EXPANSION: '迎接下一批居民' });
+const greenBuildingCount = state => state.buildings.filter(b => ['park', 'solar'].includes(b.type)).length;
+function nightPowerReserve(state) {
+  const s = getCityStats(state, 'night');
+  return s.demand ? Number(((s.generation - s.demand) / s.demand).toFixed(6)) : 1;
+}
+function challengeCandidate(state, history = {}, profile = assessCityDNA(state, history)) {
+  const dna = Object.fromEntries(Object.entries(profile).map(([k, d]) => [k, d.status === 'valid' ? d.value : null])), spatial = spatialMetrics(state), t = CHALLENGE_RULES.thresholds;
+  const factoryCount = state.buildings.filter(b => b.type === 'factory').length;
+  const recentShortages = history.shortageStarts ? history.shortageStarts.filter(ms => ms >= (history.elapsedMs || 0) - t.shortageWindowMs).length : (history.shortageCount || 0);
+  if (dna.growth !== null && dna.sustainability !== null && dna.growth >= t.greenGrowth && dna.sustainability < t.greenScore && factoryCount >= t.factories) return { type: 'GREEN_TRANSITION', reason: `增长 ${dna.growth}，可持续 ${dna.sustainability}，工厂 ${factoryCount} 座；先修复增长的绿色短板。` };
+  if (recentShortages >= t.shortageCount || nightPowerReserve(state) < t.nightReserve) return { type: 'POWER_RESILIENCE', reason: `最近 60 模拟秒缺电 ${recentShortages} 次，夜间预计余量 ${Math.round(nightPowerReserve(state) * 100)}%；需要验证整夜供电。` };
+  if (dna.growth !== null && dna.livability !== null && dna.growth >= t.livableGrowth && dna.livability < t.livability) return { type: 'LIVABLE_NEIGHBORHOOD', reason: `增长 ${dna.growth}，宜居 ${dna.livability}，公园覆盖 ${Math.round(spatial.parkCoverage * 100)}%；居民生活落后于扩张。` };
+  if ((dna.spatialPlanning !== null && dna.spatialPlanning < t.spatial) || spatial.disconnectedIds.length || (spatial.roadCount > 4 && spatial.roadEfficiency < t.roadEfficiency)) return { type: 'SMART_PLANNING', reason: `空间 ${dna.spatialPlanning ?? '待观察'}，断路建筑 ${spatial.disconnectedIds.length} 座，道路效率 ${Math.round(spatial.roadEfficiency * 100)}%。` };
+  return { type: 'BALANCED_EXPANSION', reason: `当前没有触发优先修复项；以保留现有城市基础的温和增长继续发展。` };
+}
+function selectChallenge(state, brain, candidate = challengeCandidate(state, brain.history)) {
+  const t = CHALLENGE_RULES.targets, stats = getCityStats(state), dna = cityDNA(state, brain.history);
+  return {
+    id: `${state.level}-${brain.clock.elapsedMs}-${brain.completed.length}`, type: candidate.type, title: CHALLENGE_NAMES[candidate.type], reason: candidate.reason,
+    level: state.level, startedMs: brain.clock.elapsedMs, completed: false, completedMs: null,
+    sourceDNA: dna, sourceArchetype: mayorArchetype(dna),
+    sourceDNAProfile: assessCityDNA(state, brain.history),
+    baseline: { greenBuildings: greenBuildingCount(state), population: stats.population },
+    // 一级住宅的 12 人步长，资金只要求 100；避免把 PRD 的大数样例直接套进微型经济。
+    targets: { ...t, population: stats.population + t.populationStep, maintainPopulation: stats.population },
+    night: null, fullNight: false,
+  };
+}
+function challengeProgress(state, brain) {
+  const c = brain.currentChallenge;
+  if (!c) return [];
+  const stats = getCityStats(state), spatial = spatialMetrics(state), dna = cityDNA(state, brain.history), profile=assessCityDNA(state,brain.history), t = c.targets;
+  const row = (label, value, target, suffix = '') => ({ label, value:value===null?'待观察':value, target, suffix, complete: value!==null && value >= target });
+  const percent = ratio => Math.floor((ratio + 1e-9) * 1000) / 10;
+  if (c.type === 'GREEN_TRANSITION') return [row('可持续', profile.sustainability.value, t.greenScore), row('幸福度', stats.happiness, t.greenHappiness, '%'), row('新增绿色建筑', greenBuildingCount(state) - c.baseline.greenBuildings, 1), row('保留金币', state.coins, t.money)];
+  if (c.type === 'POWER_RESILIENCE') return [row('完整夜晚稳定供电', c.fullNight ? 1 : 0, 1), row('夜间供电余量', Math.floor(nightPowerReserve(state) * 100), t.reserve * 100, '%'), row('保留居民', stats.population, t.maintainPopulation)];
+  if (c.type === 'LIVABLE_NEIGHBORHOOD') return [row('幸福度', stats.happiness, t.happiness, '%'), row('公园覆盖', percent(spatial.parkCoverage), t.parkCoverage * 100, '%'), row('工业分离', percent(spatial.industrialSeparation), t.separation * 100, '%')];
+  if (c.type === 'SMART_PLANNING') return [row('建筑通路', percent(spatial.connectedRatio), 100, '%'), row('空间规划', profile.spatialPlanning.value, t.spatial), row('道路效率', percent(spatial.roadEfficiency), (t.roadEfficiency ?? CHALLENGE_RULES.targets.roadEfficiency) * 100, '%')];
+  return [row('居民达到', stats.population, t.population), row('幸福度', stats.happiness, t.greenHappiness, '%'), row('保留金币', state.coins, t.money)];
+}
+function checkChallenge(state, brain) {
+  const c = brain.currentChallenge;
+  if (!c || c.completed || !challengeProgress(state, brain).every(g => g.complete)) return false;
+  c.completed = true; c.completedMs = brain.clock.elapsedMs;
+  brain.completed.push({ id: c.id, type: c.type, level: c.level, durationMs: c.completedMs - c.startedMs });
+  return true;
+}
+
+
+
+function createBrain(state) {
+  const brain = { version: 1, clock: createClock(), history: { elapsedMs: 0, greenObservedMs: 0, shortageMs: 0, shortageCount: 0, shortageStarts: [], inShortage: false }, currentChallenge: null, completed: [], archived: [], snapshots: [], traits: [], claimedChallengeRewards: [] };
+  if (state.level >= 2) brain.currentChallenge = selectChallenge(state, brain);
+  return brain;
+}
+function validateBrain(brain) {
+  const finiteNonnegative = n => Number.isFinite(n) && n >= 0 && n <= 1e12;
+  if (!brain || brain.version !== 1 || !brain.clock || !finiteNonnegative(brain.clock.elapsedMs) || ![1, 2, 4].includes(brain.clock.speed)) return false;
+  const h = brain.history;
+  if (!h || !finiteNonnegative(h.elapsedMs) || !finiteNonnegative(h.shortageMs) || h.shortageMs > h.elapsedMs || !Number.isSafeInteger(h.shortageCount) || h.shortageCount < 0 || typeof h.inShortage !== 'boolean') return false;
+  if (h.shortageStarts && (!Array.isArray(h.shortageStarts) || h.shortageStarts.length > 100 || !h.shortageStarts.every(finiteNonnegative))) return false;
+  if (!['completed', 'archived', 'snapshots'].every(k => Array.isArray(brain[k]) && brain[k].length <= 1000)) return false;
+  if (brain.traits && (!Array.isArray(brain.traits) || brain.traits.length > 5 || !brain.traits.every(t => t && Object.hasOwn(CITY_TRAITS,t.type) && typeof t.challengeId === 'string' && finiteNonnegative(t.earnedMs) && finiteNonnegative(t.coins)) || new Set(brain.traits.map(t=>t.type)).size !== brain.traits.length)) return false;
+  if (brain.claimedChallengeRewards && (!Array.isArray(brain.claimedChallengeRewards) || brain.claimedChallengeRewards.length > 1000 || !brain.claimedChallengeRewards.every(id=>typeof id==='string'))) return false;
+  if (h.greenObservedMs !== undefined && !finiteNonnegative(h.greenObservedMs)) return false;
+  const c = brain.currentChallenge;
+  if (c !== null) {
+    if (!c || !['GREEN_TRANSITION', 'POWER_RESILIENCE', 'LIVABLE_NEIGHBORHOOD', 'SMART_PLANNING', 'BALANCED_EXPANSION'].includes(c.type) || typeof c.id !== 'string' || typeof c.completed !== 'boolean' || typeof c.fullNight !== 'boolean' || !finiteNonnegative(c.startedMs) || c.startedMs > brain.clock.elapsedMs || !c.targets || !c.baseline) return false;
+    if (!['greenScore', 'greenHappiness', 'money', 'happiness', 'parkCoverage', 'separation', 'spatial', 'reserve', 'population', 'maintainPopulation'].every(k => finiteNonnegative(c.targets[k])) || typeof c.title !== 'string' || typeof c.reason !== 'string' || !finiteNonnegative(c.baseline.greenBuildings) || !finiteNonnegative(c.baseline.population)) return false;
+    if (c.night && (!finiteNonnegative(c.night.startMs) || !Number.isFinite(c.night.minReserve) || !finiteNonnegative(c.night.minPopulation) || typeof c.night.failed !== 'boolean')) return false;
+  }
+  return true;
+}
+function brainEvent(events, type, brain, payload = {}) { events.push({ type, simulatedMs: brain.clock.elapsedMs, ...payload }); }
+function observeCity(state, brain, events = []) {
+  const stats = getCityStats(state, phaseAtMs(brain.clock.elapsedMs));
+  const shortage = stats.unpowered > 0;
+  if (shortage !== brain.history.inShortage) {
+    brain.history.inShortage = shortage;
+    if (shortage) {
+      brain.history.shortageCount++;
+      brain.history.shortageStarts ||= [];
+      brain.history.shortageStarts.push(brain.clock.elapsedMs);
+      brain.history.shortageStarts = brain.history.shortageStarts.slice(-100);
+    }
+    brainEvent(events, shortage ? 'powerShortageStart' : 'powerShortageEnd', brain, { demand: stats.demand, generation: stats.generation });
+  }
+  const c = brain.currentChallenge;
+  if (c?.night && !c.completed) {
+    const reserve = nightPowerReserve(state);
+    c.night.minReserve = Math.min(c.night.minReserve, reserve);
+    c.night.minPopulation = Math.min(c.night.minPopulation, stats.population);
+    if (shortage || reserve < c.targets.reserve || stats.population < c.targets.maintainPopulation) c.night.failed = true;
+  }
+  if (checkChallenge(state, brain)) {
+    brainEvent(events, 'adaptiveChallengeCompleted', brain, { challengeId: c.id, challengeType: c.type, durationMs: c.completedMs - c.startedMs });
+    const trait = grantCityTrait(state, brain, c);
+    if (trait) brainEvent(events, 'cityTraitEarned', brain, { trait });
+  }
+  return events;
+}
+function selectNextChallenge(state, brain, events, sourceState = state) {
+  if (brain.currentChallenge) brain.archived.push({ ...brain.currentChallenge, endedMs: brain.clock.elapsedMs });
+  const candidate = challengeCandidate(sourceState, brain.history);
+  brain.currentChallenge = selectChallenge(state, brain, candidate);
+  brainEvent(events, 'adaptiveChallengeSelected', brain, { challenge: structuredClone(brain.currentChallenge) });
+}
+function takeDNASnapshot(state, brain, events, reason) {
+  const dna = cityDNA(state, brain.history), archetype = mayorArchetype(dna);
+  const dnaProfile = assessCityDNA(state, brain.history);
+  const snapshot = { level: state.level, simulatedMs: brain.clock.elapsedMs, dna, dnaProfile, archetype: mayorArchetype(dnaProfile), reason };
+  brain.snapshots.push(snapshot);
+  brainEvent(events, 'cityDNASnapshot', brain, snapshot);
+  return snapshot;
+}
+function actInCity(state, brain, action) {
+  const result = applyAction(state, action, phaseAtMs(brain.clock.elapsedMs));
+  if (!result.ok) return { ...result, brain };
+  const nextBrain = structuredClone(brain), events = [...result.events];
+  if (action.type === 'level_up') {
+    takeDNASnapshot(state, nextBrain, events, 'levelComplete');
+    selectNextChallenge(result.state, nextBrain, events, state);
+  }
+  observeCity(result.state, nextBrain, events);
+  return { ...result, brain: nextBrain, events };
+}
+function simulateCity(state, brain, realDeltaMs, paused = false) {
+  const nextBrain = structuredClone(brain), advanced = advanceClock(brain.clock, realDeltaMs, paused), events = [];
+  let nextState = structuredClone(state);
+  if (!advanced.segments.length) return { state, brain: nextBrain, events };
+  observeCity(nextState, nextBrain, events);
+  for (const segment of advanced.segments) {
+    nextBrain.history.elapsedMs += segment.deltaMs;
+    if (nextState.level >= 2) nextBrain.history.greenObservedMs = (nextBrain.history.greenObservedMs || 0) + segment.deltaMs;
+    if (nextBrain.history.inShortage) nextBrain.history.shortageMs += segment.deltaMs;
+    // 边界上的收入按刚经过的时段结算，不能先切到白天偷取夜间收入。
+    if (segment.settle) {
+      const settled = applyAction(nextState, { type: 'advance_day' }, segment.phase);
+      nextState = settled.state;
+      events.push(...settled.events.map(e => ({ ...e, simulatedMs: segment.to, phase: segment.phase })));
+    }
+    nextBrain.clock.elapsedMs = segment.to;
+    const c = nextBrain.currentChallenge, cycleOffset = segment.to % CLOCK_RULES.cycleMs;
+    if (c?.type === 'POWER_RESILIENCE' && !c.completed) {
+      if (cycleOffset === CLOCK_RULES.sunsetEnd) {
+        c.fullNight = false;
+        c.night = { startMs: segment.to, failed: false, minReserve: nightPowerReserve(nextState), minPopulation: getCityStats(nextState, 'night').population };
+      }
+      if (cycleOffset === CLOCK_RULES.nightEnd && c.night) {
+        c.fullNight = !c.night.failed && segment.to - c.night.startMs === CLOCK_RULES.nightEnd - CLOCK_RULES.sunsetEnd && c.night.minReserve >= c.targets.reserve && c.night.minPopulation >= c.targets.maintainPopulation;
+        c.night = null;
+      }
+    }
+    observeCity(nextState, nextBrain, events);
+  }
+  return { state: nextState, brain: nextBrain, events };
+}
+
+
+
+const EVENT_LIMIT = 5000;
+function recordEvent(log, state, type, payload = {}, now = Date.now()) {
+  const event = { id: log.nextEventId++, type, at: new Date(now).toISOString(), elapsedMs: Math.max(0, now - log.startedAt), runId: log.runId, sessionId: log.sessionId, variant: state.variant, level: state.level, day: state.day, payload };
+  log.events.push(event);
+  if (log.events.length > EVENT_LIMIT) { log.events.splice(0, log.events.length - EVENT_LIMIT); log.truncated = true; }
+  return event;
+}
+
+function createLog(now = Date.now(), id = crypto.randomUUID()) {
+  return { runId: id, sessionId: crypto.randomUUID(), startedAt: now, nextEventId: 1, events: [], truncated: false };
+}
+
+function validateLog(log) {
+  return Boolean(log && typeof log.runId === 'string' && typeof log.sessionId === 'string' && Number.isFinite(log.startedAt) && Number.isSafeInteger(log.nextEventId) && log.nextEventId > 0 && typeof log.truncated === 'boolean' && Array.isArray(log.events) && log.events.length <= EVENT_LIMIT && log.events.every(e => e && Number.isSafeInteger(e.id) && typeof e.type === 'string' && typeof e.at === 'string' && Number.isFinite(e.elapsedMs) && e.payload && typeof e.payload === 'object'));
+}
+
+function makeReport(state, log, brain = null) {
+  const stats = getCityStats(state, brain ? phaseAtMs(brain.clock.elapsedMs) : 'day');
+  const goals = getGoals(state, stats);
+  const decisions = state.totals.built + state.totals.upgraded + state.totals.removed;
+  const stageResults = state.milestones.map((m, i) => ({
+    level: m.level, enteredDay: m.day, completed: i < state.milestones.length - 1,
+    durationDays: (state.milestones[i + 1]?.day ?? state.day) - m.day,
+  }));
+  const homeCount = state.buildings.filter(b => b.type === 'home').length;
+  const style = state.totals.upgraded >= 4 ? '精耕型市长' : stats.happiness >= 90 && state.level >= 2 ? '宜居型市长' : stats.activeFactories >= 2 ? '产业型市长' : homeCount >= 4 ? '扩张型市长' : '开拓型市长';
+  const finalDNA = cityDNA(state, brain?.history), finalDNAProfile = assessCityDNA(state, brain?.history), archetype = mayorArchetype(finalDNAProfile);
+  const buildCounts = {};
+  for (const e of log.events.filter(e => e.type === 'building_placed')) buildCounts[e.payload.buildingType] = (buildCounts[e.payload.buildingType] || 0) + 1;
+  const mostBuiltType = Object.entries(buildCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? null;
+  const advisorUsage = { opened: log.events.filter(e => ['advisorOpen', 'advisor_viewed'].includes(e.type)).length, located: log.events.filter(e => e.type === 'advisorLocate').length };
+  const adaptiveCompletion = { completed: brain?.completed.length || 0, selected: (brain?.archived.length || 0) + (brain?.currentChallenge ? 1 : 0), current: brain?.currentChallenge ? { type: brain.currentChallenge.type, completed: brain.currentChallenge.completed } : null };
+  const shortageCount = brain?.history.shortageCount || 0;
+  const traits = structuredClone(brain?.traits || []);
+  const story = `从一条路出发，你让 ${stats.population} 位居民住进了这座城市。你的建设留下了「${archetype}」的印记：增长 ${dnaDisplay(finalDNAProfile.growth)}，宜居 ${dnaDisplay(finalDNAProfile.livability)}，可持续 ${dnaDisplay(finalDNAProfile.sustainability)}，空间 ${dnaDisplay(finalDNAProfile.spatialPlanning)}。城市经历了 ${shortageCount} 次缺电，完成 ${adaptiveCompletion.completed} 项自适应挑战${traits.length ? `，留下了${traits.map(t=>t.name).join('、')}的城市印记` : ''}，AIVA 曾与你一起定位 ${advisorUsage.located} 次问题。`;
+  return {
+    generatedAt: new Date().toISOString(), runId: log.runId, variant: state.variant,
+    day: state.day, level: state.level, population: stats.population, happiness: stats.happiness,
+    style, finalDNA, finalDNAProfile, traits, archetype, mostBuiltType, buildCounts, shortageCount, advisorUsage, adaptiveCompletion, story,
+    simulatedMs: brain?.clock.elapsedMs || 0, decisions, built: state.totals.built, upgraded: state.totals.upgraded, removed: state.totals.removed,
+    earned: state.totals.earned, spent: state.totals.spent, bankruptcies: state.totals.bankruptcies,
+    disconnected: stats.disconnected, unpowered: stats.unpowered, netIncome: stats.netIncome,
+    nextGoals: goals.filter(g => !g.complete).map(g => ({ label: g.label, current: g.value, target: g.target })),
+    stageResults, eventCount: log.events.length, truncated: log.truncated,
+    limitations: '单次本地游玩的描述性报告；无法据此推断真实留存、总体完成率或 A/B 因果效果。',
+  };
+}
+
+
+// 顾问边界：只接收报告的只读副本，只返回展示文字。
+// 未来接入大模型时，由服务端替换 provider；禁止返回或执行经济 action。
+function offlineAdvice(report) {
+  if (report.disconnected) return { title: '先把城市连接起来', text: `有 ${report.disconnected} 座建筑还没接通。让道路从市政厅连续延伸，并紧邻建筑；修好路后，它们才会开始贡献资源。` };
+  if (report.unpowered) return { title: '给增长补上电力', text: `${report.unpowered} 座建筑电力不足。新建或升级已通路的太阳能站，再推进下一天，让城市恢复生产。` };
+  if (report.netIncome <= 0) return { title: '先照顾城市的现金流', text: '当前每日收入不足以覆盖维护费。接通更多住宅获取税收，或调整公园数量；市政厅每日提供 8 金币基础收入。' };
+  if (report.happiness < 85 && report.level >= 3) return { title: '留一点空间给生活', text: `当前幸福度 ${report.happiness}。每级工厂使幸福度降低 5，每级已通路公园增加 8；可用公园平衡工业扩张。` };
+  if (report.nextGoals.length) return { title: report.level === 1 ? '欢迎就任，市长' : '城市的下一小步', text: report.level === 1 ? '先在初始道路两侧建造 2 座住宅，迎接 24 位居民。点击空地建造，点击建筑查看状态；目标完成后即可晋升城市。' : `优先完成「${report.nextGoals[0].label}」，目前为 ${report.nextGoals[0].current}/${report.nextGoals[0].target}。每次晋升都会保留现有城市，并获得一笔发展补助。` };
+  return { title: report.level === 5 ? '未来，由你继续书写' : '准备迎接下一阶段', text: report.level === 5 ? '你把最初的小镇发展成了未来城市。继续自由建设，或导出 Mayor Report，回看这一路的经营决策。' : '本阶段目标已完成。准备好晋升费用后，点击「晋升城市」；如果缺少金币或建材，推进几天积累资源。' };
+}
+
+async function requestAdvice(report, provider = offlineAdvice) {
+  const snapshot = structuredClone(report);
+  const result = await provider(snapshot);
+  if (!result || typeof result.title !== 'string' || typeof result.text !== 'string') throw new Error('顾问输出格式不正确');
+  return { title: result.title.slice(0, 80), text: result.text.slice(0, 1200), mode: provider === offlineAdvice ? 'offline-rules' : 'external-text' };
+}
+
+
+
+function diagnoseCity(state, brain) {
+  const stats = getCityStats(state, phaseAtMs(brain.clock.elapsedMs)), spatial = spatialMetrics(state), dna = cityDNA(state, brain.history);
+  const profile = assessCityDNA(state,brain.history), archetype = mayorArchetype(profile), challenge = brain.currentChallenge;
+  const suffix = challenge ? `本阶段的「${CHALLENGE_NAMES[challenge.type]}」也会从这一步受益。` : '先安置两座住宅，再选择城市的发展方向。';
+  const previous = brain.archived.at(-1);
+  const context = `${archetype} · ${previous ? `上一项「${CHALLENGE_NAMES[previous.type]}」${previous.completed ? '已完成' : '尚未完成'}。` : ''}`;
+  const diagnosis = (title, message, reasonCode, ids, priority, explanation) => {
+    const buildings = state.buildings.filter(b => ids.includes(b.id));
+    return { title, message: `${message} ${suffix}`, reasonCodes: [reasonCode], affectedBuildingIds: buildings.map(b => b.id), affectedTileIds: buildings.map(tileId), priority, explanation: `${context} ${explanation}` };
+  };
+  if (stats.unpowered) return diagnosis('先点亮这些建筑', `当前有 ${stats.unpowered} 座建筑缺电。夜间太阳能只保留白昼的 15%，先补充或升级通路电站。`, 'POWER_SHORTAGE', state.buildings.filter(b => stats.statuses[b.id] === 'unpowered').map(b => b.id), 100, `当前需求 ${stats.demand}，供给 ${stats.generation}。住宅夜间需求为白昼的 125%；建筑按固定优先级获得足额电力后才运行。`);
+  if (spatial.disconnectedIds.length) return diagnosis('把断开的街区接回来', `有 ${spatial.disconnectedIds.length} 座建筑没有接入市政厅道路，先补齐相邻的四向通路。`, 'DISCONNECTED_BUILDING', spatial.disconnectedIds, 90, `通路率 ${Math.round(spatial.connectedRatio * 100)}%。道路只通过道路连接，不会跨过住宅。`);
+  if (spatial.conflicts.length) {
+    const houses = [...new Set(spatial.conflicts.map(c => c.homeId))], factories = [...new Set(spatial.conflicts.map(c => c.factoryId))];
+    return diagnosis('给住宅留出缓冲空间', `${houses.length} 座住宅的两格范围内有 ${factories.length} 座工厂。黄色标出住宅，红色标出相关工厂；调整相邻用途可以减少冲突。`, 'FACTORY_NEAR_RESIDENTIAL', [...houses, ...factories], 80, `两格街区范围内共 ${spatial.conflicts.length} 组住宅与工厂冲突，工业分离率 ${Math.round(spatial.industrialSeparation * 100)}%。布局影响空间评价，幸福度仍按公园、工厂与供电统一计算。`);
+  }
+  if (spatial.uncoveredHomeIds.length && state.level >= 2) {
+    const parks = state.buildings.filter(b => b.type === 'park' && stats.statuses[b.id] === 'active');
+    return diagnosis('让公园走进居民的日常', `${spatial.uncoveredHomeIds.length} 座住宅的两格范围内没有已通路公园。黄色是待覆盖住宅，绿色是现有公园。`, 'NO_PARK_COVERAGE', [...spatial.uncoveredHomeIds, ...parks.map(b => b.id)], 60, `公园服务住宅周围两格，斜向走一步要算两格。当前覆盖率 ${Math.round(spatial.parkCoverage * 100)}%。`);
+  }
+  if (spatial.roadCount > 4 && spatial.roadEfficiency < .45) return diagnosis('让道路服务更多建筑', `当前道路效率 ${Math.round(spatial.roadEfficiency * 100)}%。优先利用已连通道路旁的空位，并检查多余支路。`, 'LOW_SPATIAL_EFFICIENCY', state.buildings.filter(b => b.type === 'road').map(b => b.id), 40, '道路效率 = min(1, 通路建筑数 / 道路数) × 通路道路比例；增加空路不会加分。');
+  return diagnosis(challenge ? challenge.title : '欢迎就任，市长', challenge ? `你的城市呈现「${archetype}」倾向。打开城市任务，推进这次由建设表现选出的挑战。` : '从初始道路两侧的两座住宅开始，迎接第一批 24 位居民。', 'CITY_PROGRESS', [], 10, `City DNA：增长 ${dnaDisplay(profile.growth)}、宜居 ${dnaDisplay(profile.livability)}、可持续 ${dnaDisplay(profile.sustainability)}、空间 ${dnaDisplay(profile.spatialPlanning)}。尚未开放的设施不参与评价。`);
+}
+function diagnosisHighlights(state, diagnosis) {
+  return state.buildings.filter(b => diagnosis.affectedBuildingIds.includes(b.id) && diagnosis.affectedTileIds.includes(tileId(b))).map(b => ({ tileId: tileId(b), buildingId: b.id, color: diagnosis.reasonCodes.includes('DISCONNECTED_BUILDING') ? 'orange' : b.type === 'factory' ? 'red' : b.type === 'park' ? 'green' : b.type === 'home' ? 'yellow' : 'orange' }));
+}
+
+
+const PLANNING_LENSES = Object.freeze({ PARK_COVERAGE: '公园覆盖', INDUSTRIAL_CONFLICT: '工业影响', ROAD_CONNECTIVITY: '道路连通' });
+function planningOverlay(state, lens) {
+  if (!Object.hasOwn(PLANNING_LENSES, lens || '')) return [];
+  const stats = getCityStats(state), spatial = spatialMetrics(state), layers = new Map();
+  const mark = (b, kind) => layers.set(tileId(b), { tileId: tileId(b), kind });
+  if (lens === 'PARK_COVERAGE' || lens === 'INDUSTRIAL_CONFLICT') {
+    const type = lens === 'PARK_COVERAGE' ? 'park' : 'factory';
+    const sources = state.buildings.filter(b => b.type === type && (type !== 'park' || stats.statuses[b.id] === 'active'));
+    for (let y = 0; y < HEIGHT; y++) for (let x = 0; x < WIDTH; x++) if (terrainAt(x,y) === 'grass' && sources.some(b => manhattan(b,{x,y}) <= 2)) mark({x,y}, type === 'park' ? 'park-area' : 'industry-area');
+    for (const b of state.buildings.filter(b => b.type === 'home')) {
+      if (type === 'park') mark(b, spatial.coveredHomeIds.includes(b.id) ? 'served-home' : 'unserved-home');
+      else if (spatial.conflicts.some(c => c.homeId === b.id)) mark(b, 'conflict-home');
+    }
+  } else for (const b of state.buildings.filter(b => b.type !== 'hall')) mark(b, stats.statuses[b.id] === 'disconnected' ? b.type === 'road' ? 'isolated-road' : 'disconnected-building' : 'connected-network');
+  return [...layers.values()];
+}
+
+
+
+const AIVA_QUESTIONS = Object.freeze({ PRIORITY: '我现在最应该解决什么？', HAPPINESS: '哪些因素正在影响居民幸福度？', CHALLENGE: '为什么系统给我这个专属挑战？', DNA: '解释我的 City DNA', LAYOUT: '我的城市布局哪里有问题？' });
+const AIVA_TYPES = [...Object.keys(AIVA_QUESTIONS), 'CHALLENGE_STORY', 'MAYOR_STORY'];
+function createAivaRequest(state, brain, log, questionType = 'PRIORITY') {
+  if (!AIVA_TYPES.includes(questionType)) throw new Error('未知顾问问题');
+  const stats = getCityStats(state, phaseAtMs(brain.clock.elapsedMs)), spatial = spatialMetrics(state), diagnosis = diagnoseCity(state, brain);
+  const profile = assessCityDNA(state, brain.history), challenge = brain.currentChallenge;
+  const activeLevels = type => state.buildings.filter(b => b.type === type && stats.statuses[b.id] === 'active').reduce((n,b)=>n+b.level,0);
+  const issues = [];
+  if (stats.unpowered) issues.push('POWER_SHORTAGE');
+  if (spatial.disconnectedIds.length) issues.push('DISCONNECTED_BUILDING');
+  if (spatial.conflicts.length) issues.push('FACTORY_NEAR_RESIDENTIAL');
+  if (state.level >= 2 && spatial.uncoveredHomeIds.length) issues.push('NO_PARK_COVERAGE');
+  if (stats.happiness < 75) issues.push('LOW_HAPPINESS');
+  if (spatial.roadCount > 4 && spatial.roadEfficiency < .45) issues.push('LOW_SPATIAL_EFFICIENCY');
+  const facts = {
+    population: stats.population, happiness: stats.happiness, netIncome: stats.netIncome,
+    powerDemand: stats.demand, powerGeneration: stats.generation, unpowered: stats.unpowered,
+    disconnected: spatial.disconnectedIds.length, conflictHomes: new Set(spatial.conflicts.map(c=>c.homeId)).size,
+    conflictPairs: spatial.conflicts.length, uncoveredHomes: state.level >= 2 ? spatial.uncoveredHomeIds.length : 0,
+    homeCount: spatial.homeCount, parkCoverage: Math.round(spatial.parkCoverage*100),
+    industrialSeparation: Math.round(spatial.industrialSeparation*100), roadEfficiency: Math.round(spatial.roadEfficiency*100),
+    happinessBase: 82, parkHappiness: activeLevels('park')*8, factoryPenalty: activeLevels('factory')*5, powerPenalty: stats.unpowered*2,
+  };
+  const context = {
+    schemaVersion: 1, questionType, level: state.level, phase: phaseAtMs(brain.clock.elapsedMs),
+    cityDNA: profile, mayorArchetype: mayorArchetype(profile),
+    facts, resources: { coins: state.coins, materials: state.materials, research: state.research },
+    spatialMetrics: { connectedRatio: spatial.connectedRatio, parkCoverage: spatial.parkCoverage, industrialSeparation: spatial.industrialSeparation, roadEfficiency: spatial.roadEfficiency },
+    diagnosis: { primary: diagnosis.reasonCodes[0], allowedIssues: issues, affectedCount: diagnosis.affectedBuildingIds.length },
+    currentChallenge: challenge ? { type: challenge.type, reason: challenge.reason.slice(0,160), completed: challenge.completed, goals: challengeProgress(state,brain).map(g=>({label:g.label,value:g.value,target:g.target,suffix:g.suffix})) } : null,
+    recentRelevantEvents: log.events.filter(e=>['level_complete','adaptiveChallengeCompleted','cityTraitEarned','powerShortageStart','powerShortageEnd'].includes(e.type)).slice(-5).map(e=>({type:e.type,level:e.level})),
+  };
+  if (questionType === 'MAYOR_STORY') {
+    const report = makeReport(state,log,brain);
+    context.journey = { traits: (brain.traits || []).map(t=>t.type), completedChallenges: brain.completed.map(c=>c.type).slice(-5), shortages: report.shortageCount, mostBuiltType: report.mostBuiltType, advisorUsage: report.advisorUsage, stages: report.stageResults, snapshots: brain.snapshots.slice(-5).map(s=>({level:s.level,cityDNA:s.dnaProfile || null})) };
+  }
+  // Location remains in the browser-owned deterministic snapshot, never in model output.
+  return { context: structuredClone(context), diagnosis: structuredClone(diagnosis) };
+}
+
+
+
+const AIVA_LIMITS = Object.freeze({ cooldownMs: 4000, cacheMs: 60000, timeoutMs: 10000, maxChars: 180 });
+const AIVA_RESPONSE_SCHEMA = {
+  type: 'object', additionalProperties: false, required: ['summary','explanation','suggestions'],
+  properties: { summary: {type:'string',maxLength:36}, explanation: {type:'string',maxLength:120}, suggestions: {type:'array',maxItems:3,items:{type:'string',maxLength:40}} },
+};
+function answerText(answer) { return [answer.summary,answer.explanation,...answer.suggestions].join(''); }
+function validateAivaContext(c) {
+  const topKeys=['schemaVersion','questionType','level','phase','cityDNA','mayorArchetype','facts','resources','spatialMetrics','diagnosis','currentChallenge','recentRelevantEvents','journey'];
+  const factKeys=['population','happiness','netIncome','powerDemand','powerGeneration','unpowered','disconnected','conflictHomes','conflictPairs','uncoveredHomes','homeCount','parkCoverage','industrialSeparation','roadEfficiency','happinessBase','parkHappiness','factoryPenalty','powerPenalty'];
+  const number = n => Number.isFinite(n)&&n>=-1000000&&n<=1e9;
+  if(!c || Object.keys(c).some(k=>!topKeys.includes(k)) || c.schemaVersion!==1 || !AIVA_TYPES.includes(c.questionType) || !Number.isInteger(c.level) || c.level<1 || c.level>5 || !['day','sunset','night','dawn'].includes(c.phase)) return false;
+  if(!c.facts || Object.keys(c.facts).some(k=>!factKeys.includes(k)) || !factKeys.every(k=>number(c.facts[k]))) return false;
+  if(!c.resources || !['coins','materials','research'].every(k=>number(c.resources[k])&&c.resources[k]>=0)) return false;
+  if(!c.cityDNA || !['growth','livability','sustainability','spatialPlanning'].every(k=>{
+    const d=c.cityDNA[k];
+    return d && ['valid','locked','insufficient_data'].includes(d.status) && Number.isFinite(d.confidence) && d.confidence>=0 && d.confidence<=1 && (d.status==='valid' ? Number.isFinite(d.value)&&d.value>=0&&d.value<=100 : d.value===null);
+  })) return false;
+  if(!c.diagnosis || !Array.isArray(c.diagnosis.allowedIssues) || c.diagnosis.allowedIssues.length>6 || !c.diagnosis.allowedIssues.every(v=>['POWER_SHORTAGE','DISCONNECTED_BUILDING','FACTORY_NEAR_RESIDENTIAL','NO_PARK_COVERAGE','LOW_HAPPINESS','LOW_SPATIAL_EFFICIENCY'].includes(v))) return false;
+  if(c.currentChallenge && (!Object.hasOwn(CHALLENGE_NAMES,c.currentChallenge.type) || typeof c.currentChallenge.reason!=='string' || c.currentChallenge.reason.length>160 || typeof c.currentChallenge.completed!=='boolean' || !Array.isArray(c.currentChallenge.goals) || c.currentChallenge.goals.length>8)) return false;
+  if(c.questionType==='MAYOR_STORY' && (!c.journey || !number(c.journey.shortages) || !Array.isArray(c.journey.traits) || !c.journey.traits.every(t=>Object.hasOwn(CITY_TRAITS,t)) || !Array.isArray(c.journey.completedChallenges))) return false;
+  return JSON.stringify(c).length<=18000;
+}
+function localAivaAnswer(c) {
+  const f=c.facts, primary=c.diagnosis.primary, challenge=c.currentChallenge;
+  let summary='从眼前的一小步开始', explanation='', suggestions=[];
+  if (c.questionType==='HAPPINESS') {
+    summary=`当前幸福度 ${f.happiness}%`;
+    explanation=`当前基础幸福为 ${f.happinessBase}，公园贡献 ${f.parkHappiness}，运行工厂带来 ${f.factoryPenalty} 点压力，缺电影响 ${f.powerPenalty} 点。${f.happiness>=75?'现有记录没有显示必须处理的幸福危机。':'可以从公园和供电两方面改善生活。'}布局冲突单独影响规划评价，不能直接当作幸福下降的原因。`;
+    suggestions=[c.level>=2?'照顾已有住宅附近的绿色服务。':'先让两座住宅的居民安顿下来。','建设后查看幸福度与建筑状态。'];
+  } else if (c.questionType==='DNA') {
+    summary='你的城市，正在形成自己的性格';
+    explanation=`增长 ${dnaDisplay(c.cityDNA.growth)}、宜居 ${dnaDisplay(c.cityDNA.livability)}、可持续 ${dnaDisplay(c.cityDNA.sustainability)}、空间 ${dnaDisplay(c.cityDNA.spatialPlanning)}。未开放的设施不扣分；新机制需要观察，待观察不是低分。有效指标呈现「${c.mayorArchetype}」倾向。`;
+    suggestions=['先读清每项评价，再决定下一步。','用规划视图比较住宅周边的服务。'];
+  } else if (c.questionType==='CHALLENGE' || c.questionType==='CHALLENGE_STORY') {
+    summary=challenge ? `${c.questionType==='CHALLENGE_STORY'?'市政提案：':''}${CHALLENGE_NAMES[challenge.type]}` : '先完成小镇的第一步';
+    explanation=challenge ? `提案来自当时的建设表现：${challenge.reason}${challenge.completed?'你已经完成这项提案，城市会保留已获得的成长印记。':'目标仍以任务卡为准，完成后会给城市留下一枚特质徽章与纪念装饰。'}` : '先在道路两侧安置两座住宅，迎接居民。城市升级后，专属挑战会根据已经能够观察到的表现选择，不要求尚未解锁的设施。';
+    suggestions=['打开城市任务查看实际目标。','保留当前城市，逐步调整建设策略。'];
+  } else if (c.questionType==='MAYOR_STORY') {
+    summary='每一次建设，都留下了痕迹';
+    const j=c.journey;
+    explanation=`这座城市已走到第 ${c.level} 阶段，容纳 ${f.population} 位居民，呈现「${c.mayorArchetype}」倾向。记录中有 ${j.shortages} 次缺电、${j.completedChallenges.length} 项已完成的专属挑战${j.traits.length?`，留下了${j.traits.map(t=>CITY_TRAITS[t]?.name).filter(Boolean).join('、')}的印记`:''}。你的下一次选择仍能改变城市的模样。`;
+    suggestions=['回看城市任务与成长足迹。','保存城市档案，留住这段建设旅程。'];
+  } else if (primary==='POWER_SHORTAGE') {
+    summary='先让城市恢复供电'; explanation=`当前需求 ${f.powerDemand}，供给 ${f.powerGeneration}，有 ${f.unpowered} 座建筑缺电。夜间太阳能会减弱，住宅用电会增加；建筑必须获得足额电力才能运作。优先处理正在停工的建筑，再安排新的扩张。`; suggestions=['补充或升级已经通路的太阳能站。','定位缺电建筑，检查实际运行状态。'];
+  } else if (primary==='DISCONNECTED_BUILDING') {
+    summary='先把街区接回城市'; explanation=`有 ${f.disconnected} 座建筑还没有接通市政厅的道路。建筑需要紧邻连续的道路，斜向相邻或隔着房屋都不能接通。先修复现有建筑的连接，可以恢复它们的贡献，再考虑向远处扩张。`; suggestions=['打开道路连通视图检查断点。','定位这些建筑，补齐连续道路。'];
+  } else if (primary==='FACTORY_NEAR_RESIDENTIAL') {
+    summary='给住宅留出工业缓冲'; explanation=`当前有 ${f.conflictHomes} 座住宅处在工厂周围两格范围，共 ${f.conflictPairs} 组用途冲突。它们影响空间评价；幸福度仍由运行工厂、公园和供电共同计算。先查看工业影响图层，调整住宅与工业的相对位置。`; suggestions=['定位受影响住宅与相关工厂。','留出缓冲，再决定新增建筑的位置。'];
+  } else if (primary==='NO_PARK_COVERAGE') {
+    summary='让绿色服务靠近居民'; explanation=`有 ${f.uncoveredHomes} 座住宅尚未获得附近公园服务，当前覆盖率 ${f.parkCoverage}%。公园需要接通道路，才能服务周边两格的住宅。先利用已有道路附近的空位，避免只在远处建设绿色设施。`; suggestions=['打开公园覆盖视图查看服务范围。','优先照顾黄色标出的住宅。'];
+  } else if (primary==='LOW_SPATIAL_EFFICIENCY') {
+    summary='让已有道路发挥作用'; explanation=`当前道路效率约 ${f.roadEfficiency}%。优先利用接通市政厅道路旁的空位，检查孤立或没有服务建筑的支路。单纯增加道路数量并不会改善规划评价，建筑与道路一起发挥作用，城市才能更紧凑地成长。`; suggestions=['打开道路连通视图检查支路。','先利用已通路的空位，再延伸道路。'];
+  } else {
+    summary='城市正在平稳成长'; explanation=`目前有 ${f.population} 位居民，幸福度 ${f.happiness}%，当前没有需要优先处理的已知布局或供电问题。${challenge?'可以继续推进当前专属挑战。':'先沿初始道路安置两座住宅。'}尚未解锁或观察不足的评价会保留为空，不会被当作低分。`; suggestions=['查看城市任务，安排下一次建设。','建设后再观察资源与居民状态。'];
+  }
+  summary=summary.slice(0,36); suggestions=suggestions.slice(0,3).map(s=>s.slice(0,40));
+  const room=AIVA_LIMITS.maxChars-summary.length-suggestions.join('').length;
+  explanation=explanation.slice(0,Math.min(120,room));
+  const answer={summary,explanation,suggestions};
+  if(answerText(answer).length<100) answer.explanation += '你可以按自己的节奏建设，完成后再回来看城市的变化。'.slice(0,100-answerText(answer).length);
+  return answer;
+}
+const ISSUE_WORDS = { POWER_SHORTAGE:/缺电|电力不足|供电不足|停电/g, DISCONNECTED_BUILDING:/断路|未接通|道路中断/g, FACTORY_NEAR_RESIDENTIAL:/用途冲突|工住冲突|工厂过近/g, NO_PARK_COVERAGE:/缺少公园|公园不足|尚未获得附近公园|没有公园/g };
+function validateAivaAnswer(answer, context) {
+  if (!answer || Object.keys(answer).some(k=>!['summary','explanation','suggestions'].includes(k)) || typeof answer.summary!=='string' || !answer.summary.trim().length || answer.summary.length>36 || typeof answer.explanation!=='string' || !answer.explanation.trim().length || answer.explanation.length>120 || !Array.isArray(answer.suggestions) || answer.suggestions.length>3 || !answer.suggestions.every(s=>typeof s==='string' && s.length<=40)) return {ok:false,reason:'format'};
+  const text=answerText(answer);
+  if(text.length<100 || text.length>AIVA_LIMITS.maxChars) return {ok:false,reason:'length'};
+  if(/医院|学校|消防|警察|水资源|污染值|严重污染|灾害|NPC|API|LLM|JSON|BFS|曼哈顿|西侧|东侧|北侧|南侧/i.test(text)) return {ok:false,reason:'unsupported_feature'};
+  for(const [issue,regex] of Object.entries(ISSUE_WORDS)) if(!context.diagnosis.allowedIssues.includes(issue)) {
+    for(const match of text.matchAll(regex)) {
+      const before=text.slice(Math.max(0,match.index-8),match.index), after=text.slice(match.index+match[0].length,match.index+match[0].length+10);
+      if(!/(没有|尚无|不存在|无需|未发生|无须|未见|无).{0,4}$/.test(before) && !/0\s*次$/.test(before) && !/^(?:影响|次数|数量|为|是|：|\s){0,4}\s*0/.test(after)) return {ok:false,reason:'unsupported_issue'};
+    }
+  }
+  const available = new Set((JSON.stringify(context).match(/-?\d+(?:\.\d+)?/g)||[]).map(Number));
+  for(const n of text.match(/-?\d+(?:\.\d+)?/g)||[]) if(!available.has(Number(n))) return {ok:false,reason:'unsupported_number'};
+  return {ok:true};
+}
+function contextCacheKey(context) {
+  // Context deliberately omits IDs, wallclock timestamps and continuously-changing sim time.
+  return JSON.stringify(context);
+}
+function createAivaClient({ fetcher = globalThis.fetch?.bind(globalThis), now = Date.now, protocol = globalThis.location?.protocol || 'http:' } = {}) {
+  const cache=new Map(); let lastRequest=-Infinity; let pending=null;
+  return {
+    clear(){cache.clear();lastRequest=-Infinity;},
+    async ask(context, mode='AUTO') {
+      if(!validateAivaContext(context)) throw new Error('无效城市上下文');
+      const local=localAivaAnswer(context), key=`${mode}:${contextCacheKey(context)}`, cached=cache.get(key), start=now();
+      if(cached && start-cached.at<AIVA_LIMITS.cacheMs) return {...structuredClone(cached.result),durationMs:0,cached:true};
+      if(mode==='LOCAL' || protocol==='file:' || !fetcher) return {answer:local,mode:'LOCAL',reason:mode==='LOCAL'?'selected-local':'offline',durationMs:0,cached:false};
+      if(pending || start-lastRequest<AIVA_LIMITS.cooldownMs) return {answer:local,mode:'LOCAL',reason:'cooldown',durationMs:0,cached:false};
+      lastRequest=start;
+      const controller=new AbortController(), timeout=setTimeout(()=>controller.abort(),AIVA_LIMITS.timeoutMs);
+      try {
+        pending=fetcher('/api/aiva',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({context,mode}),signal:controller.signal});
+        const response=await pending;
+        if(!response.ok) throw new Error('unavailable');
+        const data=await response.json();
+        if(!validateAivaAnswer(data.answer,context).ok || !['LLM','LOCAL'].includes(data.mode)) throw new Error('invalid-response');
+        const result={answer:data.answer,mode:data.mode,reason:typeof data.reason==='string'?data.reason:'',durationMs:Math.max(0,now()-start),cached:false};
+        if(cache.size>=80) cache.delete(cache.keys().next().value);
+        cache.set(key,{at:now(),result});
+        return structuredClone(result);
+      } catch {return {answer:local,mode:'LOCAL',reason:'request-failed',durationMs:Math.max(0,now()-start),cached:false};}
+      finally {clearTimeout(timeout);pending=null;}
+    },
+  };
+}
+
+
+const PLAYTEST_FORMAT = 'citydna-playtest.v1';
+const PLAYTEST_SOURCES = ['fresh_play', 'migrated_city', 'demo', 'imported_save'];
+const playtestUuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+function createPlaytest(source = 'fresh_play', device = 'desktop') {
+  return { version: 1, id: crypto.randomUUID(), source: PLAYTEST_SOURCES.includes(source) ? source : 'imported_save', device: ['mobile', 'tablet', 'desktop'].includes(device) ? device : 'desktop', activeMs: 0, tutorial: { home: false, clock: false, level: false, advisor: false, skipped: source !== 'fresh_play' }, sessions: [], acceptedChallenges: [], reminderShown: false };
+}
+function validatePlaytest(p) {
+  return Boolean(p && p.version === 1 && playtestUuid(p.id) && PLAYTEST_SOURCES.includes(p.source) && ['mobile','tablet','desktop'].includes(p.device) && Number.isFinite(p.activeMs) && p.activeMs >= 0 && p.activeMs < 1e10 && p.tutorial && ['home','clock','level','advisor','skipped'].every(k => typeof p.tutorial[k] === 'boolean') && Array.isArray(p.sessions) && p.sessions.length <= 100 && p.sessions.every(playtestUuid) && Array.isArray(p.acceptedChallenges) && p.acceptedChallenges.length <= 1000 && p.acceptedChallenges.every(v => typeof v === 'string' && v.length <= 160));
+}
+
+// Real foreground time, independent of simulation speed. Stop counting after
+// 60 seconds without interaction. Closing, backgrounding and offline time add 0.
+function createPlayClock({ now = () => performance.now(), initialMs = 0, visible = true } = {}) {
+  let total = initialMs, last = now(), inputAt = last, foreground = visible;
+  function tick() {
+    const time = now();
+    if (foreground) total += Math.max(0, Math.min(time, inputAt + 60000) - last);
+    last = time;
+    return Math.round(total);
+  }
+  return { tick, interact() { tick(); inputAt = now(); }, visibility(value) { tick(); foreground = value; last = now(); if (value) inputAt = last; } };
+}
+
+function tutorialStep(p) {
+  if (p.tutorial.skipped) return -1;
+  return ['home','clock','level','advisor'].findIndex(key => !p.tutorial[key]);
+}
+function updateTutorial(p, type, payload = {}, level = 1) {
+  if (type === 'building_placed' && payload.buildingType === 'home') p.tutorial.home = true;
+  if (type === 'auto_play_changed' && payload.enabled) p.tutorial.clock = true;
+  if (level >= 2) p.tutorial.level = true;
+  if (type === 'advisor_open') p.tutorial.advisor = true;
+}
+
+const playtestEventTypes = new Set(['session_started','session_ended','building_placed','building_upgraded','building_removed','level_started','level_complete','auto_play_changed','timeSpeedChanged','action_rejected','advisor_open','advisor_question','advisor_mode','advisor_response_time','advisor_locate','advisor_follow_action','adaptiveChallengeSelected','adaptiveChallengeCompleted','challenge_viewed','challenge_accepted','powerShortageStart','powerShortageEnd','tutorial_skipped','tutorial_completed','playtest_exported','planningLensChanged']);
+const playtestEnums = { buildingType: ['road','home','solar','factory','park','lab','hall'], actual: ['LOCAL','LLM'], mode: ['LOCAL','LLM'], questionType: ['PRIORITY','HAPPINESS','CHALLENGE','DNA','LAYOUT','CHALLENGE_STORY','MAYOR_STORY'], action: ['build','upgrade','remove','level_up','advance_day'], challengeType: ['GREEN_TRANSITION','POWER_RESILIENCE','LIVABLE_NEIGHBORHOOD','SMART_PLANNING','BALANCED_EXPANSION'] };
+function playtestPayload(payload) {
+  const clean = {};
+  for (const [key, values] of Object.entries(playtestEnums)) if (values.includes(payload[key])) clean[key] = payload[key];
+  for (const key of ['speed','durationMs','enteredLevel']) if (Number.isFinite(payload[key]) && payload[key] >= 0 && payload[key] < 1e9) clean[key] = payload[key];
+  for (const key of ['enabled','cached','heuristic']) if (typeof payload[key] === 'boolean') clean[key] = payload[key];
+  return clean;
+}
+function playtestDNA(profile) {
+  return Object.fromEntries(['growth','livability','sustainability','spatialPlanning'].map(key => {
+    const d = profile[key];
+    return [key, { status: d.status, value: d.status === 'valid' ? d.value : null }];
+  }));
+}
+
+function createPlaytestExport({ playtest: p, state, log, report }) {
+  if (!validatePlaytest(p)) throw new Error('invalid-playtest');
+  const events = log.events.filter(e => playtestEventTypes.has(e.type) && Number.isFinite(e.payload.activeMs) && e.payload.activeMs >= 0 && e.payload.activeMs <= p.activeMs).map(e => ({ seq: e.id, type: e.type, level: e.level, activeMs: e.payload.activeMs, session: p.sessions.includes(e.sessionId) ? e.sessionId : null, data: playtestPayload(e.payload) }));
+  const firstBuild = events.find(e => e.type === 'building_placed');
+  const levelTimeline = events.filter(e => ['level_started','level_complete'].includes(e.type)).map(e => ({ level: e.level, event: e.type, activeMs: e.activeMs }));
+  const count = type => events.filter(e => e.type === type).length;
+  return {
+    format: PLAYTEST_FORMAT, gameVersion: '0.5.0', playtestId: p.id, source: p.source, deviceCategory: p.device,
+    sessionCount: p.sessions.length, sessions: [...p.sessions], activeMs: Math.round(p.activeMs), timingDefinition: 'foreground-visible; idle cutoff 60s; no offline time; independent of simulation speed',
+    firstBuildMs: firstBuild?.activeMs ?? null, finalLevel: state.level,
+    levelTimeline, completedLevels: [...new Set(events.filter(e => e.type === 'level_complete').map(e => e.level))],
+    tutorial: { ...p.tutorial },
+    actions: { built: count('building_placed'), upgraded: count('building_upgraded'), removed: count('building_removed'), rejected: count('action_rejected') },
+    aiva: { opened: count('advisor_open'), questions: count('advisor_question'), located: count('advisor_locate'), llmResponses: events.filter(e => e.type === 'advisor_mode' && e.data.actual === 'LLM').length, localResponses: events.filter(e => e.type === 'advisor_mode' && e.data.actual === 'LOCAL').length },
+    challenges: { viewed: count('challenge_viewed'), accepted: count('challenge_accepted'), completed: count('adaptiveChallengeCompleted') },
+    shortages: count('powerShortageStart'), dna: playtestDNA(report.finalDNAProfile), events,
+    dataQuality: { truncated: Boolean(log.truncated), completeFromStart: p.source === 'fresh_play' && !log.truncated, historicalEventsExcluded: log.events.some(e => !Number.isFinite(e.payload.activeMs)) },
+    privacy: 'Random playtest ID only. No name, email, IP, user agent, full save, model text or automatic upload.',
+  };
+}
+
+function summarizePlaytests(records) {
+  const unique = new Map(); let rejected = 0;
+  for (const r of records) {
+    const countValid = v => Number.isSafeInteger(v) && v >= 0 && v < 1e9;
+    const dnaValid = ['growth','livability','sustainability','spatialPlanning'].every(key => { const d = r?.dna?.[key]; return d && ['valid','locked','insufficient_data'].includes(d.status) && (d.status === 'valid' ? Number.isFinite(d.value) && d.value >= 0 && d.value <= 100 : d.value === null); });
+    if (r?.format !== PLAYTEST_FORMAT || !playtestUuid(r.playtestId) || !PLAYTEST_SOURCES.includes(r.source) || !Number.isFinite(r.activeMs) || r.activeMs < 0 || !(r.firstBuildMs === null || Number.isFinite(r.firstBuildMs) && r.firstBuildMs >= 0 && r.firstBuildMs <= r.activeMs) || !Array.isArray(r.completedLevels) || !r.completedLevels.every(v => Number.isInteger(v) && v >= 1 && v <= 4) || !Array.isArray(r.levelTimeline) || !r.levelTimeline.every(e => e && ['level_started','level_complete'].includes(e.event) && Number.isInteger(e.level) && e.level >= 1 && e.level <= 5 && Number.isFinite(e.activeMs) && e.activeMs >= 0 && e.activeMs <= r.activeMs) || !['opened','located'].every(k => countValid(r.aiva?.[k])) || !['viewed','accepted','completed'].every(k => countValid(r.challenges?.[k])) || !countValid(r.shortages) || !dnaValid) { rejected++; continue; }
+    const prior = unique.get(r.playtestId);
+    if (!prior || r.activeMs >= prior.activeMs) unique.set(r.playtestId, r);
+  }
+  const all = [...unique.values()], fresh = all.filter(r => r.source === 'fresh_play' && r.dataQuality?.completeFromStart);
+  const mean = values => { const valid = values.filter(Number.isFinite); return valid.length ? Math.round(valid.reduce((sum,n) => sum+n, 0) / valid.length) : null; };
+  const median = values => { const sorted = values.filter(Number.isFinite).sort((a,b) => a-b); const mid = Math.floor(sorted.length / 2); return sorted.length ? (sorted[mid] + sorted[Math.floor((sorted.length - 1) / 2)]) / 2 : null; };
+  const distribution = {};
+  for (const key of ['growth','livability','sustainability','spatialPlanning']) {
+    const dimensions = fresh.map(r => r.dna[key]);
+    distribution[key] = { valid: dimensions.filter(d => d?.status === 'valid').length, locked: dimensions.filter(d => d?.status === 'locked').length, insufficient: dimensions.filter(d => d?.status === 'insufficient_data').length, median: median(dimensions.filter(d => d?.status === 'valid').map(d => d.value)) };
+  }
+  return { records: all.length, eligibleFreshRuns: fresh.length, excludedRuns: all.length - fresh.length, rejectedFiles: rejected,
+    meanActiveMs: mean(fresh.map(r => r.activeMs)), medianActiveMs: median(fresh.map(r => r.activeMs)), medianFirstBuildMs: median(fresh.map(r => r.firstBuildMs)),
+    levels: [1,2,3,4].map(level => ({ level, completed: fresh.filter(r => r.completedLevels.includes(level)).length, denominator: fresh.length, medianCompletionActiveMs: median(fresh.map(r => r.levelTimeline?.find(e => e.event === 'level_complete' && e.level === level)?.activeMs)) })),
+    usedAiva: fresh.filter(r => r.aiva.opened > 0).length, usedLocate: fresh.filter(r => r.aiva.located > 0).length,
+    sawChallenge: fresh.filter(r => r.challenges.viewed > 0).length, acceptedChallenge: fresh.filter(r => r.challenges.accepted > 0).length, completedChallenge: fresh.filter(r => r.challenges.completed > 0).length,
+    encounteredShortage: fresh.filter(r => r.shortages > 0).length, dna: distribution,
+    limitation: 'Exploratory usability sample. Counts and medians only; no retention, A/B causality or statistical significance claims. Level denominators are all eligible new-city runs.',
+  };
+}
+
+
+
+function createDemoScenario(kind) {
+  if (!['industrial', 'green'].includes(kind)) throw new Error('未知演示城市');
+  // 明确标记的 Lv.3 设计夹具：用于比较行为结果，不冒充真实玩家通关记录。
+  let state = createInitialState();
+  state.level = 3; state.coins = 20000; state.materials = 1000;
+  state.milestones = [{ level: 1, day: 1 }, { level: 2, day: 1 }, { level: 3, day: 1 }];
+  const log = createLog();
+  const run = action => {
+    const result = applyAction(state, action);
+    if (!result.ok) throw new Error(result.message);
+    state = result.state;
+    for (const event of result.events) recordEvent(log, state, event.type, event);
+  };
+  const build = (type, x, y) => run({ type: 'build', buildingType: type, x, y });
+  if (kind === 'industrial') {
+    for (const x of [6, 7, 8, 9]) build('road', x, 5);
+    for (const x of [2, 3, 4, 5, 6, 7]) { build('home', x, 4); run({ type: 'upgrade', id: state.buildings.at(-1).id }); }
+    for (const x of [2, 3, 4]) build('factory', x, 6);
+    for (const x of [5, 6]) build('solar', x, 6);
+  } else {
+    for (const x of [6, 7, 8]) build('road', x, 5);
+    for (const y of [1, 2, 3, 4, 6, 7, 8, 9]) build('road', 3, y);
+    for (const y of [2, 4, 6, 8]) { build('home', 2, y); build('park', 4, y); }
+    for (const y of [1, 3, 7, 9]) build('solar', 4, y);
+    build('solar', 5, 4); build('factory', 8, 6);
+  }
+  state.coins = 1500; state.materials = 100;
+  if (!validateState(state)) throw new Error('演示存档校验失败');
+  const brain = createBrain(state), events = [];
+  // createBrain 已按当前结构选择首项；再次记录明确的选择事件和设计夹具来源。
+  brain.currentChallenge = null;
+  selectNextChallenge(state, brain, events);
+  takeDNASnapshot(state, brain, events, 'demoFixture'); observeCity(state, brain, events);
+  recordEvent(log, state, 'demoScenarioLoaded', { kind, source: 'seeded-design-fixture' });
+  for (const e of events) recordEvent(log, state, e.type, e);
+  return { format: 'citydna-save', fixture: { kind, seeded: true }, state, brain, log, ui: { lighting: 'cycle' } };
+}
+
+
+
+// 视觉与交互辅助函数。这里不结算资源，不修改 GameState。
+const DISTRICTS = [
+  { level: 1, minX: 0, maxX: 6, minY: 3, maxY: 7 },
+  { level: 2, minX: 0, maxX: 8, minY: 2, maxY: 8 },
+  { level: 3, minX: 0, maxX: 9, minY: 1, maxY: 9 },
+  { level: 4, minX: 0, maxX: 11, minY: 0, maxY: 9 },
+];
+
+function plotUnlockLevel(x, y) {
+  return DISTRICTS.find(d => x >= d.minX && x <= d.maxX && y >= d.minY && y <= d.maxY)?.level ?? 4;
+}
+
+function isPlotOpen(state, x, y) {
+  // V0.1 已建地块永远保持可见、可操作，兼容旧城市。
+  return state.level >= plotUnlockLevel(x, y) || state.buildings.some(b => b.x === x && b.y === y);
+}
+
+function buildPreview(state, type, x, y) {
+  if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return { ok: false, reason: '这里超出了城市范围。' };
+  if (!isPlotOpen(state, x, y)) return { ok: false, reason: `这片土地将在城市 Lv.${plotUnlockLevel(x, y)} 开放。` };
+  if (terrainAt(x, y) === 'water') return { ok: false, reason: '河流无法建造，请选择草地。' };
+  if (state.buildings.some(b => b.x === x && b.y === y)) return { ok: false, reason: '这里已有建筑。' };
+  if (!Object.hasOwn(BUILDINGS, type)) return { ok: false, reason: '先选择一种建筑。' };
+  if (state.level < BUILDINGS[type].unlock) return { ok: false, reason: `城市 Lv.${BUILDINGS[type].unlock} 解锁。` };
+  const cost = buildCost(type, state);
+  if (state.coins < cost.coins || state.materials < cost.materials) return { ok: false, reason: `需要 ${cost.coins} 金币、${cost.materials} 建材。` };
+  return { ok: true, cost };
+}
+
+function roadConnections(state, x, y) {
+  return [['n', 0, -1], ['e', 1, 0], ['s', 0, 1], ['w', -1, 0]]
+    .filter(([, dx, dy]) => state.buildings.some(b => b.x === x + dx && b.y === y + dy && (b.type === 'road' || b.type === 'hall')))
+    .map(([direction]) => direction);
+}
+
+function phaseAtProgress(value) {
+  const progress = ((value % 1) + 1) % 1;
+  const phase = progress < .55 ? 'day' : progress < .7 ? 'sunset' : 'night';
+  const minutes = Math.floor((6 * 60 + progress * 24 * 60) % (24 * 60));
+  return { phase, label: { day: '白昼', sunset: '黄昏', night: '夜晚' }[phase], time: `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`, progress };
+}
+
+function buildingArt(type, level = 1) {
+  return type === 'home' && level > 1 ? `home-${Math.min(level, 3)}` : type;
+}
+
+
+
+const $ = id => document.getElementById(id);
+const STORAGE_KEY = 'city-evolution-demo.save.v1';
+const fmt = n => n.toLocaleString('zh-CN');
+const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const art = (type, cls = '', level = 1) => `<svg class="${cls}" aria-hidden="true"><use href="#art-${buildingArt(type, level)}"/></svg>`;
+const icon = type => `<svg aria-hidden="true"><use href="#icon-${type}"/></svg>`;
+const categories = [
+  { id: 'roads', label: '道路', icon: 'road', types: ['road'] },
+  { id: 'homes', label: '住宅', icon: 'home', types: ['home'] },
+  { id: 'industry', label: '工业', icon: 'factory', types: ['factory'] },
+  { id: 'services', label: '设施', icon: 'solar', types: ['solar', 'lab'] },
+  { id: 'parks', label: '公园', icon: 'park', types: ['park'] },
+];
+const statusNames = { active: '正常运作', disconnected: '未接通道路', unpowered: '电力不足' };
+let state = createInitialState();
+let log = createLog();
+let brain = createBrain(state);
+let playtest = null, playClock = null;
+const deviceCategory = () => innerWidth <= 650 ? 'mobile' : innerWidth <= 1024 ? 'tablet' : 'desktop';
+let preferences = { progress: .25, lighting: 'cycle' };
+let tool = null, selectedId = null, activePanel = null, trayCategory = null;
+let playing = false, clockTimer = null, lastClock = 0, celebrationResume = false;
+let locatedTiles = new Map(), locateTimer, currentDiagnosis;
+let planningLens = null, aivaView = null, aivaGeneration = 0, advisorMode = 'AUTO', lastAdvice = null;
+let challengeNarrative = null, reportNarrative = null, narrativeGeneration = 0;
+const aivaClient = createAivaClient();
+let saveTimer, toastTimer, celebrationTimer, poppedTimer, hoveredTile;
+let storageAvailable = true, loadMessage = '', resumed = false, celebrating = false;
+let debugEnabled = new URLSearchParams(location.search).get('debug') === '1';
+const roadIcon = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M15 8h34l9 48H6z" fill="#c9c8b7"/><path d="M21 8h22l8 48H13z" fill="#858d94"/><path d="M32 10v11m0 8v11m0 8v8" stroke="#f1e9c9" stroke-width="3"/></svg>';
+const lockIcon = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="currentColor"/><path d="M5 7V4a3 3 0 016 0v3" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>';
+
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    const data = JSON.parse(raw);
+    if (!validateState(data.state) || !validateLog(data.log)) throw new Error('invalid-save');
+    state = data.state;
+    log = data.log;
+    if (data.brain && !validateBrain(data.brain)) throw new Error('invalid-brain');
+    brain = migrateBrainV04(data.brain || createBrain(state));
+    if (validatePlaytest(data.playtest)) playtest = data.playtest;
+    if (['AUTO','LOCAL','LLM'].includes(data.ui?.advisorMode)) advisorMode=data.ui.advisorMode;
+    log.sessionId = crypto.randomUUID();
+    if (data.ui && Number.isFinite(data.ui.progress) && data.ui.progress >= 0 && data.ui.progress < 1 && ['cycle', 'day', 'sunset', 'night'].includes(data.ui.lighting)) preferences = data.ui;
+    resumed = true;
+  }
+} catch {
+  try { localStorage.setItem(`${STORAGE_KEY}.unreadable`, localStorage.getItem(STORAGE_KEY)); } catch { /* 存储不可用时仍允许游玩 */ }
+  state = createInitialState(); log = createLog(); brain = createBrain(state); loadMessage = '城市记录暂时无法读取，已开启新城市；可用时将原记录保留在 unreadable 备份键。';
+}
+
+playtest ||= createPlaytest(resumed ? 'migrated_city' : 'fresh_play', deviceCategory());
+function beginPlaySession() {
+  playtest.sessions.push(crypto.randomUUID());
+  playtest.sessions = playtest.sessions.slice(-100);
+  log.sessionId = playtest.sessions.at(-1);
+  playClock = createPlayClock({ initialMs: playtest.activeMs, visible: !document.hidden });
+}
+beginPlaySession();
+function syncPlayTime() { if (playClock) playtest.activeMs = playClock.tick(); }
+
+const currentStats = () => getCityStats(state, phaseAtMs(brain.clock.elapsedMs));
+const dnaLabels = { growth: '城市增长', livability: '居民宜居', sustainability: '可持续性', spatialPlanning: '空间规划' };
+function dnaCard(dna, archetype) {
+  return `<div class="dna-card"><small>你的 City DNA</small><strong>${escapeHTML(archetype)}</strong>${Object.entries(dnaLabels).map(([key, label]) => {const d=dna[key];return `<div class="dna-attribute ${d.status}" title="${escapeHTML(d.note || '')}" tabindex="0"><span>${label}</span><b>${dnaDisplay(d)}</b><div><i style="width:${d.status==='valid'?d.value:0}%"></i></div>${d.status!=='valid'?`<small>${d.status==='locked'?'尚未评估':'待观察'} · ${escapeHTML(d.note || '')}</small>`:''}</div>`;}).join('')}</div>`;
+}
+function traitCards() {
+  return (brain.traits || []).map(t=>`<div class="trait-card"><span>${CITY_TRAITS[t.type].icon}</span><div><strong>${escapeHTML(CITY_TRAITS[t.type].name)}</strong><small>${escapeHTML(CITY_TRAITS[t.type].landmark)} · 已留下城市印记</small></div></div>`).join('');
+}
+function invalidateAiva() { aivaGeneration++; narrativeGeneration++; aivaView=null; challengeNarrative=null; reportNarrative=null; }
+
+function persist(showIndicator = true) {
+  try {
+    syncPlayTime();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ state, log, brain, playtest, ui: {...preferences,advisorMode} }));
+    storageAvailable = true;
+    if (showIndicator) {
+      clearTimeout(saveTimer);
+      $('save-status').hidden = false;
+      saveTimer = setTimeout(() => { $('save-status').hidden = true; }, 700);
+    }
+  } catch {
+    if (storageAvailable) toast('城市暂时无法保存。离开前，可在市长报告里保存城市记录。', true);
+    storageAvailable = false;
+  }
+}
+function track(type, payload = {}, eventState = state) {
+  syncPlayTime();
+  const before = tutorialStep(playtest);
+  updateTutorial(playtest, type, payload, state.level);
+  recordEvent(log, eventState, type, { simulatedMs: brain.clock.elapsedMs, ...payload, activeMs: playtest.activeMs });
+  if (before >= 0 && tutorialStep(playtest) < 0 && !playtest.tutorial.skipped) recordEvent(log, state, 'tutorial_completed', { activeMs: playtest.activeMs });
+  if (before !== tutorialStep(playtest)) renderTutorial();
+}
+
+function renderTutorial() {
+  const step = tutorialStep(playtest), hint = $('tutorial-hint');
+  hint.hidden = step < 0 || celebrating;
+  $('welcome-hint').hidden = true;
+  document.querySelectorAll('.tutorial-focus').forEach(el => el.classList.remove('tutorial-focus'));
+  if (step < 0) return;
+  const hints = [
+    ['安下第一座家', '点下方「住宅」，把小房子放在市政厅右侧道路旁。', '#build-dock [data-category="homes"]'],
+    ['让城市开始生活', '点右上角 ▶ 开始时间，居民会入住并带来收入。', '#auto-toggle'],
+    ['完成第一项城市任务', '沿道路建两座住宅。点右侧靶心查看目标，达标后升级城市。', '#mission-open'],
+    ['认识你的城市助理', '点左下角 AIVA 头像，看看她对这座城有什么建议。', '#advisor-open'],
+  ];
+  $('tutorial-count').textContent = `初任市长 ${step + 1}/4`;
+  $('tutorial-title').textContent = hints[step][0];
+  $('tutorial-copy').textContent = hints[step][1];
+  document.querySelector(hints[step][2])?.classList.add('tutorial-focus');
+}
+function toast(message, error = false) {
+  clearTimeout(toastTimer);
+  $('toast').textContent = message;
+  $('toast').classList.toggle('error', error);
+  $('toast').hidden = false;
+  $('city-feedback').textContent = message;
+  toastTimer = setTimeout(() => { $('toast').hidden = true; }, 3000);
+}
+function shortNumber(n) { return matchMedia('(max-width:650px)').matches && n >= 10000 ? `${(n / 1000).toFixed(1)}k` : fmt(n); }
+function setNumber(id, value) {
+  const el = $(id);
+  if (el.textContent === String(value)) return;
+  el.textContent = value;
+  const chip = el.closest('.resource');
+  chip?.classList.remove('changed');
+  if (chip) { void chip.offsetWidth; chip.classList.add('changed'); }
+}
+function describeChip(id, text) { $(id).title = text; $(id).setAttribute('aria-label', text); }
+
+function renderHUD(stats) {
+  setNumber('coins', shortNumber(state.coins));
+  setNumber('materials', shortNumber(state.materials));
+  setNumber('population', shortNumber(stats.population));
+  setNumber('power', `${stats.demand}/${stats.generation}`);
+  setNumber('happiness', `${stats.happiness}%`);
+  $('city-level').textContent = `Lv.${state.level}`;
+  $('city-name').textContent = STAGES[state.level - 1].name;
+  $('day').textContent = state.day;
+  describeChip('coins-chip', `金币 ${fmt(state.coins)}，每日净收入 ${stats.netIncome >= 0 ? '+' : ''}${stats.netIncome}`);
+  describeChip('materials-chip', `建材 ${fmt(state.materials)}，每日生产 ${stats.materialRate}`);
+  describeChip('population-chip', `${stats.population} 位居民已入住`);
+  describeChip('power-chip', `电力需求 ${stats.demand}，供给 ${stats.generation}${stats.unpowered ? `，${stats.unpowered} 座建筑缺电` : '，供电稳定'}`);
+  describeChip('happiness-chip', `幸福度 ${stats.happiness}%，公园改善居住环境，工厂会带来压力`);
+  $('power-chip').classList.toggle('warning', stats.unpowered > 0);
+  $('coins-chip').classList.toggle('warning', stats.netIncome < 0);
+  $('happiness-chip').classList.toggle('warning', stats.happiness < 60);
+}
+
+function roadArt(b) {
+  const endpoints = { n: [50, -1], e: [101, 50], s: [50, 101], w: [-1, 50] };
+  const directions = roadConnections(state, b.x, b.y);
+  const path = directions.length ? directions.map(d => `M50 50L${endpoints[d].join(' ')}`).join(' ') : 'M35 50H65';
+  return `<svg class="road-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="road-sidewalk" d="${path}"/><path class="road-surface" d="${path}"/><path class="road-marking" d="${path}"/></svg>${b.id % 3 === 2 ? '<span class="street-light"></span>' : ''}`;
+}
+function tooltipFor(b, status) {
+  const name = b.type === 'hall' ? '市政厅' : BUILDINGS[b.type].name;
+  if (b.type === 'road') return status === 'active' ? '道路 · 已连通市政厅' : '道路 · 还未接入主路';
+  const info = b.type === 'home' ? ` · ${12 * b.level} 居民` : b.type === 'factory' ? ` · 建材 +${6 * b.level}/天` : b.type === 'solar' ? ` · 电力 +${8 * b.level}` : b.type === 'park' ? ` · 幸福度 +${8 * b.level}` : b.type === 'lab' ? ` · 科技 +${4 * b.level}/天` : '';
+  return `${name} Lv.${b.level}${info} · ${statusNames[status]}`;
+}
+function clearPreview() {
+  if (!hoveredTile) return;
+  hoveredTile.classList.remove('valid-preview', 'invalid-preview');
+  hoveredTile.querySelector('.ghost')?.remove();
+  hoveredTile.title = hoveredTile.dataset.baseTitle || '';
+  hoveredTile = null;
+}
+function previewTile(tile) {
+  if (!tool || tool === 'bulldoze' || tile === hoveredTile) return;
+  clearPreview();
+  hoveredTile = tile;
+  const x = Number(tile.dataset.x), y = Number(tile.dataset.y);
+  const preview = buildPreview(state, tool, x, y);
+  tile.classList.add(preview.ok ? 'valid-preview' : 'invalid-preview');
+  if (!tile.dataset.type) tile.insertAdjacentHTML('beforeend', `<span class="ghost">${tool === 'road' ? '<span class="ghost-road"></span>' : art(tool, 'building-art')}</span>`);
+  tile.title = preview.ok ? `建造${BUILDINGS[tool].name} · ${preview.cost.coins} 金币 / ${preview.cost.materials} 建材` : preview.reason;
+}
+function renderMap(stats = currentStats(), poppedId = null) {
+  clearPreview();
+  const focus = document.activeElement?.closest?.('.tile');
+  const focusX = focus?.dataset.x, focusY = focus?.dataset.y;
+  const tiles = [];
+  const overlay = new Map(planningOverlay(state,planningLens).map(l=>[l.tileId,l.kind]));
+  const lockMarkers = new Set(['8,2', '9,1', '3,0', '10,8']);
+  for (let y = 0; y < HEIGHT; y++) for (let x = 0; x < WIDTH; x++) {
+    const b = buildingAt(state, x, y), terrain = terrainAt(x, y), open = isPlotOpen(state, x, y);
+    const status = b ? stats.statuses[b.id] : null;
+    const name = b ? b.type === 'hall' ? '市政厅' : BUILDINGS[b.type].name : terrain === 'water' ? '河流' : '空地';
+    const label = `${x + 1} 列 ${y + 1} 行，${name}${b ? `，Lv.${b.level}，${statusNames[status]}` : !open ? `，Lv.${plotUnlockLevel(x, y)} 开放` : ''}`;
+    const tip = b ? tooltipFor(b, status) : !open ? `城市 Lv.${plotUnlockLevel(x, y)} 开放这片土地` : terrain === 'water' ? '晴川河 · 不可建造' : tool ? '选择空地建造' : '空地 · 从下方选择建筑';
+    let inner = '';
+    if (b) {
+      inner = b.type === 'road' ? roadArt(b) : art(b.type, 'building-art', b.level);
+      if (b.level > 1) inner += `<span class="building-level">${b.level}</span>`;
+      if (status !== 'active') inner += `<span class="status-mark ${status}" aria-hidden="true">${status === 'unpowered' ? icon('power') : roadIcon}</span>`;
+      else if (stats.happiness < 60 && b.type === 'home' && b.id % 2 === 0) inner += `<span class="status-mark" aria-hidden="true">${icon('smile')}</span>`;
+    } else if (terrain === 'grass') {
+      const decoration = (x * 37 + y * 17) % 29;
+      if (decoration < 5 || x === 9 && y > 6) inner = art('tree', 'decoration');
+      else if (decoration === 13) inner = '<span class="decoration rock"></span>';
+      else if (decoration === 9 || decoration === 19) inner = '<span class="decoration flowers"></span>';
+      if (!open && lockMarkers.has(`${x},${y}`)) inner += `<span class="plot-lock">${lockIcon} Lv.${plotUnlockLevel(x, y)}</span>`;
+    }
+    if(x===1 && y===5 && brain.traits?.length) inner += `<span class="trait-landmarks" title="${escapeHTML(brain.traits.map(t=>CITY_TRAITS[t.type].landmark).join('、'))}">${brain.traits.map(t=>`<i data-landmark="${t.type}" title="${CITY_TRAITS[t.type].landmark}">${art(CITY_TRAITS[t.type].art)}</i>`).join('')}</span>`;
+    const suggested = !b && state.level === 1 && stats.population < 24 && y === 4 && (x === 2 || x === 3);
+    const located = locatedTiles.get(`${x},${y}`);
+    const classes = ['tile', terrain, open ? '' : 'locked', b ? `occupied ${status}` : '', activePanel === 'inspector' && b?.id === selectedId ? 'selected' : '', b?.id === poppedId ? 'popped' : '', suggested && !tool ? 'suggested' : '', located && located.buildingId === b?.id ? `located located-${located.color}` : '', overlay.has(`${x},${y}`)?`lens-tile lens-${overlay.get(`${x},${y}`)}`:''].filter(Boolean).join(' ');
+    tiles.push(`<button class="${classes}" data-x="${x}" data-y="${y}" data-base-title="${escapeHTML(tip)}" ${b ? `data-type="${b.type}" data-level="${b.level}"` : ''} aria-label="${label}" title="${escapeHTML(tip)}">${inner}</button>`);
+  }
+  $('map').innerHTML = tiles.join('');
+  if (focusX !== undefined) $('map').querySelector(`[data-x="${focusX}"][data-y="${focusY}"]`)?.focus({ preventScroll: true });
+  if (poppedId) { clearTimeout(poppedTimer); poppedTimer = setTimeout(() => $('map').querySelectorAll('.popped').forEach(el => el.classList.remove('popped')), 500); }
+}
+
+function renderDock() {
+  $('build-dock').innerHTML = categories.map(c => `<button class="dock-category ${trayCategory === c.id || c.types.includes(tool) ? 'active' : ''}" data-category="${c.id}" aria-label="${c.label}分类" aria-expanded="${trayCategory === c.id}" title="${c.label}">${c.icon === 'road' ? roadIcon : art(c.icon)}<span>${c.label}</span></button>`).join('') + `<button class="dock-category bulldoze ${tool === 'bulldoze' ? 'active' : ''}" data-mode="bulldoze" aria-label="拆除模式" aria-pressed="${tool === 'bulldoze'}" title="拆除模式 B">${icon('bulldoze')}<span>拆除</span></button>`;
+  const category = categories.find(c => c.id === trayCategory);
+  $('building-tray').hidden = !category;
+  if (category) {
+    $('tray-title').textContent = category.label;
+    $('build-tools').innerHTML = category.types.map(type => {
+      const def = BUILDINGS[type], cost = buildCost(type, state), locked = state.level < def.unlock;
+      return `<button class="build-tool ${type === tool ? 'active' : ''}" data-tool="${type}" aria-label="${def.name}，${locked ? `城市 Lv.${def.unlock} 解锁` : `${cost.coins} 金币，${cost.materials} 建材`}" title="${def.description}" ${locked ? 'disabled' : ''}>${type === 'road' ? roadIcon : art(type)}<strong>${def.name}</strong>${locked ? `<span class="locked-label">${lockIcon} Lv.${def.unlock} 解锁</span>` : `<span class="cost">◈ ${cost.coins}<span>▧ ${cost.materials}</span></span>`}</button>`;
+    }).join('');
+  }
+  $('mode-bar').hidden = !tool;
+  $('game-shell').classList.toggle('build-mode', Boolean(tool && tool !== 'bulldoze'));
+  $('game-shell').classList.toggle('bulldoze-mode', tool === 'bulldoze');
+  $('mode-label').textContent = tool === 'bulldoze' ? '拆除模式 · 返还 40% 金币' : tool ? `${BUILDINGS[tool].name} · ◈ ${buildCost(tool, state).coins}  ▧ ${buildCost(tool, state).materials}` : '';
+  $('welcome-hint').hidden = Boolean(tool || trayCategory || activePanel || state.totals.built > 0 || resumed);
+}
+function renderMission(stats) {
+  const stage = STAGES[state.level - 1], goals = getGoals(state, stats), done = goals.filter(g => g.complete).length, maxLevel = state.level === STAGES.length;
+  $('mission-count').textContent = maxLevel ? '✓' : `${done}/${goals.length}`;
+  $('mission-open').classList.toggle('ready', canLevelUp(state, stats));
+  $('mission-open').setAttribute('aria-label', maxLevel ? '城市任务，所有阶段已完成' : `城市任务，已完成 ${done}/${goals.length}`);
+  $('mission-ready').hidden = !canLevelUp(state, stats);
+  $('stage-badge').textContent = `Lv.${state.level}`;
+  $('stage-name').textContent = stage.name;
+  $('stage-subtitle').textContent = stage.subtitle;
+  $('journey-dots').innerHTML = STAGES.map(s => `<span class="${s.level < state.level ? 'done' : s.level === state.level ? 'current' : ''}" title="${s.name}"></span>`).join('');
+  $('goals').innerHTML = goals.map(g => `<div class="goal ${g.complete ? 'done' : ''}"><span class="goal-check">${g.complete ? '✓' : ''}</span><span class="goal-label">${g.label}</span><span class="goal-value">${g.value}/${g.target}</span><div class="goal-progress"><i style="width:${Math.min(100, g.value / g.target * 100)}%"></i></div></div>`).join('');
+  $('level-price').innerHTML = maxLevel ? '你已经建成未来城市，继续自由建设吧。' : `升级投入 <b class="${state.coins < stage.upgrade.coins ? 'lacking' : ''}">◈ ${stage.upgrade.coins}</b> &nbsp; <b class="${state.materials < stage.upgrade.materials ? 'lacking' : ''}">▧ ${stage.upgrade.materials}</b><br>发展补助：${stage.reward.coins} 金币 · ${stage.reward.materials} 建材`;
+  $('level-up').disabled = !canLevelUp(state, stats);
+  $('level-up').innerHTML = maxLevel ? '未来城市已建成 ✓' : '升级城市 <span>↗</span>';
+  $('unlock-hint').textContent = maxLevel ? '同一座城，还有更多可能。' : `下一阶段：${stage.unlockText}`;
+  const challenge = brain.currentChallenge;
+  $('adaptive-challenge').innerHTML = challenge ? `<div class="challenge-heading"><small>因你的建设而来</small><span>${challenge.completed ? '✓ 已完成' : '进行中'}</span></div><h3>${escapeHTML(challenge.title)}</h3><p>${escapeHTML(challenge.reason)}</p>${challengeProgress(state, brain).map(g => `<div class="challenge-goal ${g.complete ? 'done' : ''}"><span>${g.complete ? '✓' : '○'} ${g.label}</span><b>${g.value}/${g.target}${g.suffix}</b></div>`).join('')}${challenge.type === 'POWER_RESILIENCE' ? '<small>从入夜到黎明，整夜无缺电且余量 ≥20%，居民数不低于开始时；中途接取须等下一晚。</small>' : ''}` : '<small>完成小镇目标后，下一阶段会根据你的建设表现获得一项专属挑战。</small>';
+  if(challenge) $('adaptive-challenge').insertAdjacentHTML('beforeend',`<div class="challenge-story">${challengeNarrative?`<strong>${escapeHTML(challengeNarrative.summary)}</strong><p>${escapeHTML(challengeNarrative.explanation)}</p>`:`<p>市政提案：${escapeHTML(challenge.title)}。让这次建设为城市留下一份新的成长印记。</p>`}<button id="challenge-story-request" class="text-button">听听这项提案的故事 ↗</button></div>`);
+  if(challenge && !challenge.completed) $('adaptive-challenge').insertAdjacentHTML('beforeend', `<button id="challenge-accept" class="button secondary" ${playtest.acceptedChallenges.includes(challenge.id) ? 'disabled' : ''}>${playtest.acceptedChallenges.includes(challenge.id) ? '已标记为本次目标 ✓' : '把这项挑战设为本次目标'}</button><small>只记录你的选择；挑战条件与奖励不变。</small>`);
+  $('city-traits').innerHTML=traitCards() || '<p class="muted">完成专属挑战，留下城市特质与纪念装饰。</p>';
+}
+
+function renderInspector(stats) {
+  const b = state.buildings.find(b => b.id === selectedId);
+  if (activePanel !== 'inspector' || !b) { $('inspector').hidden = true; return; }
+  const isHall = b.type === 'hall', isRoad = b.type === 'road', def = BUILDINGS[b.type], status = stats.statuses[b.id];
+  const name = isHall ? '市政厅' : def.name;
+  const cost = !isHall && !isRoad ? upgradeCost(b, state) : null;
+  const upgradeAvailable = cost && state.level >= 3 && b.level < MAX_BUILDING_LEVEL && state.coins >= cost.coins && state.materials >= cost.materials;
+  const facts = isHall ? [['基础收入', '+8 / 天'], ['基础供电', '6']] : isRoad ? [['连接方向', '上下左右'], ['拆除返还', `${Math.floor(b.invested * .4)} 金币`]] : [
+    ...(def.capacity ? [['居民容量', `${def.capacity * b.level} 人`]] : []),
+    ...(def.income ? [['每日收入', `+${def.income * b.level}`]] : []),
+    ...(def.production ? [['建材生产', `+${def.production * b.level} / 天`]] : []),
+    ...(def.research ? [['科技生产', `+${def.research * b.level} / 天`]] : []),
+    ...(def.power ? [['电力需求', `${def.power * b.level}`]] : []),
+    ...(def.generation ? [['提供电力', `${def.generation * b.level}`]] : []),
+    ...(def.happiness ? [['幸福度', `+${def.happiness * b.level}`]] : []),
+    ...(b.type === 'factory' ? [['幸福度', `−${5 * b.level}`]] : []),
+    ...(def.upkeep ? [['每日维护', `−${def.upkeep * b.level}`]] : []),
+  ];
+  const issue = status === 'disconnected' ? '铺设道路，把建筑接入市政厅的道路网络。' : status === 'unpowered' ? '接入或升级太阳能站，为这座建筑补足电力。' : '';
+  $('inspector').hidden = false;
+  $('inspector').innerHTML = `<div class="panel-heading"><h2>建筑详情</h2><button class="close-panel" aria-label="关闭建筑详情">×</button></div><div class="inspector-hero">${isRoad ? roadIcon : art(b.type, '', b.level)}<div><h3>${name}</h3><p>Lv.${b.level} · ${b.x + 1} 列 ${b.y + 1} 行</p></div></div><div class="inspector-status ${status !== 'active' ? 'problem' : ''}">${isRoad && status === 'active' ? '已接通市政厅' : statusNames[status]}</div><dl class="inspector-facts">${facts.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join('')}</dl>${issue ? `<p class="inspector-note">${issue}</p>` : ''}<p class="inspector-description">${isHall ? '一座城市的起点。从这里铺路，让街区慢慢生长。' : isRoad ? '道路不会跨过建筑连接，只按上下左右连续相接。' : def.description}</p>${!isHall ? `<div class="inspector-actions">${!isRoad ? `<button id="building-upgrade" class="button primary" ${upgradeAvailable ? '' : 'disabled'}>${b.level >= MAX_BUILDING_LEVEL ? '已经是最高等级' : state.level < 3 ? '城市 Lv.3 解锁升级' : `升级至 Lv.${b.level + 1} · ◈ ${cost.coins}  ▧ ${cost.materials}`}</button>` : ''}<button id="building-remove" class="button remove">拆除 · 返还 ${Math.floor(b.invested * .4)} 金币</button></div>` : ''}`;
+}
+
+function renderAdvisor(stats) {
+  currentDiagnosis = diagnoseCity(state, brain);
+  const answer=aivaView?.result.answer;
+  $('advisor-title').textContent = answer?.summary || currentDiagnosis.title;
+  $('advisor-text').textContent = answer?.explanation || currentDiagnosis.message;
+  $('advisor-suggestions').innerHTML=answer?answer.suggestions.map(s=>`<li>${escapeHTML(s)}</li>`).join(''):'';
+  $('advisor-pending').hidden=!aivaView?.pending;
+  $('advisor-panel').setAttribute('aria-busy',String(Boolean(aivaView?.pending)));
+  $('advisor-alert').hidden = currentDiagnosis.priority < 40;
+  $('advisor-reason').textContent = (aivaView?.diagnosis || currentDiagnosis).explanation;
+  $('advisor-locate').hidden = (aivaView?.diagnosis || currentDiagnosis).affectedTileIds.length === 0;
+  $('advisor-questions').innerHTML=Object.entries(AIVA_QUESTIONS).map(([type,label])=>`<button class="quick-question ${aivaView?.questionType===type?'selected':''}" data-question="${type}" ${aivaView?.pending?'disabled':''}>${label}</button>`).join('');
+}
+async function askAiva(questionType) {
+  setPlaying(false,'advisor_question');
+  const request=createAivaRequest(state,brain,log,questionType), generation=++aivaGeneration;
+  aivaView={questionType,diagnosis:request.diagnosis,pending:true,result:{answer:localAivaAnswer(request.context),mode:'LOCAL',reason:'pending'}};
+  track('advisor_question',{questionType,requestedMode:advisorMode});renderAdvisor(currentStats());
+  const result=await aivaClient.ask(request.context,advisorMode);
+  if(generation!==aivaGeneration) return;
+  aivaView={questionType,diagnosis:request.diagnosis,pending:false,result};
+  lastAdvice={questionType,mode:result.mode,reasonCode:request.diagnosis.reasonCodes[0],ids:request.diagnosis.affectedBuildingIds,activeMs:playClock.tick(),followed:false};
+  track('advisor_mode',{requested:advisorMode,actual:result.mode,reason:result.reason,cached:result.cached});
+  track('advisor_response_time',{questionType,durationMs:result.durationMs,mode:result.mode});
+  persist();renderAdvisor(currentStats());renderDebug();
+}
+async function askNarrative(questionType) {
+  setPlaying(false,'narrative_request');
+  const request=createAivaRequest(state,brain,log,questionType), generation=narrativeGeneration;
+  const result=await aivaClient.ask(request.context,advisorMode);
+  if(generation!==narrativeGeneration) return;
+  track('advisor_response_time',{questionType,durationMs:result.durationMs,mode:result.mode});
+  track('advisor_mode',{requested:advisorMode,actual:result.mode,reason:result.reason});
+  if(questionType==='CHALLENGE_STORY') {challengeNarrative=result.answer;renderMission(currentStats());}
+  else {reportNarrative=result.answer;if($('report-story')) $('report-story').textContent=[result.answer.summary,result.answer.explanation,...result.answer.suggestions].join(' ');}
+  persist();renderDebug();
+}
+function renderDebug(stats = currentStats()) {
+  if ($('debug-panel').hidden) return;
+  $('debug-summary').textContent = `CityDNA V0.5 · ${playing ? `运行 ${brain.clock.speed}×` : '暂停'}\n存档 ${storageAvailable ? '可用' : '不可用'} · ${log.events.length} 条事件${log.truncated ? '（已截断）' : ''}\n模拟时间 ${(brain.clock.elapsedMs / 1000).toFixed(1)} 秒 · ${phaseAtMs(brain.clock.elapsedMs)}\n有效道路 ${stats.connectedRoads.size} · 通路建筑 ${stats.connectedBuildings}\n断路 ${stats.disconnected} · 缺电 ${stats.unpowered}\n顾问：${aivaView?.result.mode || 'LOCAL'} · 选择 ${advisorMode}`;
+  $('debug-experiment').textContent = `实验分组 ${state.variant} · Lv.3 工厂 ${state.variant === 'A' ? 260 : 320} 金币`;
+  $('debug-advisor-mode').value=advisorMode;
+  $('debug-state').textContent = JSON.stringify({ currentDNA: assessCityDNA(state, brain.history), archetype: mayorArchetype(assessCityDNA(state, brain.history)), advisor:{requestedMode:advisorMode,lastResponse:aivaView?.result || null}, nextChallengeCandidate: challengeCandidate(state, brain.history), shortage: brain.history, spatial: spatialMetrics(state), diagnosis: currentDiagnosis, brain, state, recentEvents: log.events.slice(-12) }, null, 2);
+}
+function renderPanels() {
+  $('mission-panel').hidden = activePanel !== 'mission';
+  $('advisor-panel').hidden = activePanel !== 'advisor';
+  $('mission-open').setAttribute('aria-expanded', String(activePanel === 'mission'));
+  $('advisor-open').setAttribute('aria-expanded', String(activePanel === 'advisor'));
+  if (activePanel !== 'inspector') $('inspector').hidden = true;
+}
+function render(stats = currentStats(), poppedId = null) {
+  renderHUD(stats); renderMap(stats, poppedId); renderDock(); renderMission(stats); renderInspector(stats); renderAdvisor(stats); renderPanels(); renderDebug(stats); renderTime(); renderTutorial();
+}
+function setPanel(panel = null) {
+  if(panel === 'mission' && activePanel !== 'mission' && brain.currentChallenge) track('challenge_viewed', { challengeType: brain.currentChallenge.type });
+  activePanel = panel;
+  trayCategory = null;
+  render();
+}
+function setTool(value) {
+  if (value && value !== 'bulldoze' && state.level < BUILDINGS[value].unlock) { toast(`城市 Lv.${BUILDINGS[value].unlock} 解锁${BUILDINGS[value].name}。`); return; }
+  tool = value;
+  activePanel = null;
+  selectedId = null;
+  trayCategory = null;
+  track('tool_selected', { tool: value || 'inspect' });
+  persist();
+  render();
+}
+
+function renderTime() {
+  const phase = clockFace(brain.clock);
+  $('game-shell').dataset.phase = phase.phase;
+  $('scene-time').textContent = phase.time;
+  $('phase-label').textContent = phase.label;
+  $('phase-icon').innerHTML = `<use href="#icon-${phase.phase === 'night' ? 'moon' : 'sun'}"/>`;
+  $('auto-toggle').textContent = playing ? 'Ⅱ' : '▶';
+  $('auto-toggle').classList.toggle('running', playing);
+  $('auto-toggle').setAttribute('aria-pressed', String(playing));
+  $('auto-toggle').setAttribute('aria-label', playing ? '暂停时间' : '开始时间');
+  $('speed-toggle').textContent = `${brain.clock.speed}×`;
+  $('speed-toggle').setAttribute('aria-label', `切换时间速度，当前 ${brain.clock.speed} 倍`);
+}
+function recordSimulationEvents(events, previous = state) {
+  const aliases = { building_placed: 'build', building_upgraded: 'upgrade', building_removed: 'demolish', level_started: 'levelStart', level_complete: 'levelComplete' };
+  for (const event of events) {
+    const eventState = event.type === 'level_complete' ? previous : state;
+    const payload = Object.fromEntries(Object.entries(event).filter(([k]) => k !== 'type'));
+    track(event.type, payload, eventState);
+    if (aliases[event.type]) track(aliases[event.type], payload, eventState);
+    if (event.type === 'adaptiveChallengeCompleted') toast('专属挑战完成！你的选择正在改变这座城。');
+    if (event.type === 'cityTraitEarned') toast(`获得「${event.trait.name}」· +${event.trait.coins} 金币，${event.trait.landmark}已留在市政厅旁。`);
+  }
+}
+function advanceSimulation(realDelta) {
+  const phaseBefore = phaseAtMs(brain.clock.elapsedMs), previous = state;
+  const result = simulateCity(state, brain, realDelta);
+  state = result.state; brain = result.brain;
+  if(result.events.length || phaseBefore!==phaseAtMs(brain.clock.elapsedMs)) invalidateAiva();
+  recordSimulationEvents(result.events, previous);
+  if (result.events.length || phaseBefore !== phaseAtMs(brain.clock.elapsedMs)) { render(); persist(false); }
+  else { renderTime(); renderDebug(); }
+}
+function flushClock() {
+  if (!playing) return;
+  const now = performance.now(), delta = now - lastClock;
+  lastClock = now;
+  advanceSimulation(delta);
+}
+function setPlaying(enabled, reason = 'user') {
+  if (enabled && (celebrating || document.querySelector('dialog[open]') || document.hidden)) return;
+  flushClock();
+  if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+  const changed = playing !== enabled;
+  playing = enabled;
+  lastClock = performance.now();
+  if (enabled) clockTimer = setInterval(flushClock, 200);
+  if (changed) { track('auto_play_changed', { enabled, speed: brain.clock.speed, reason }); track('timeSpeedChanged', { speed: enabled ? brain.clock.speed : 0, reason }); }
+  renderTime(); renderDebug(); renderTutorial(); persist();
+}
+function rejectAction(action, message) {
+  track('action_rejected', { action: action.type, buildingType: action.buildingType, reason: message });
+  persist(); toast(message, true);
+  return false;
+}
+function perform(action, automatic = false) {
+  if (celebrating) return false;
+  flushClock();
+  if (action.type === 'build') {
+    const preview = buildPreview(state, action.buildingType, action.x, action.y);
+    if (!preview.ok) return rejectAction(action, preview.reason);
+  }
+  const previous = state, result = actInCity(state, brain, action);
+  if (!result.ok) return rejectAction(action, result.message);
+  state = result.state;
+  brain = result.brain;
+  invalidateAiva();
+  if(lastAdvice && !lastAdvice.followed && playClock.tick()-lastAdvice.activeMs<=60000) {
+    const affected=previous.buildings.find(b=>b.id===action.id), buildingType=action.buildingType || affected?.type;
+    const relevant=lastAdvice.ids.includes(action.id) || (lastAdvice.reasonCode==='POWER_SHORTAGE'&&buildingType==='solar') || (lastAdvice.reasonCode==='DISCONNECTED_BUILDING'&&buildingType==='road') || (lastAdvice.reasonCode==='NO_PARK_COVERAGE'&&buildingType==='park') || (lastAdvice.reasonCode==='FACTORY_NEAR_RESIDENTIAL'&&action.type==='remove'&&buildingType==='factory');
+    if(relevant && ['build','upgrade','remove'].includes(action.type)) {lastAdvice.followed=true;track('advisor_follow_action',{questionType:lastAdvice.questionType,mode:lastAdvice.mode,action:action.type,buildingType,heuristic:true,durationMs:playClock.tick()-lastAdvice.activeMs});}
+  }
+  recordSimulationEvents(result.events, previous);
+  let poppedId = null;
+  if (action.type === 'build') poppedId = state.buildings.at(-1).id;
+  if (action.type === 'upgrade') poppedId = action.id;
+  if (action.type === 'remove' && selectedId === action.id) { selectedId = null; activePanel = null; }
+  persist(); render(currentStats(), poppedId);
+  $('city-feedback').textContent = result.message;
+  if (action.type === 'level_up') celebrate(previous.level);
+  else if (action.type === 'upgrade') toast('建筑升级完成！');
+  else if (action.type === 'remove') toast(result.message);
+  else if (action.type === 'advance_day' && !automatic) toast(result.message);
+  return true;
+}
+function celebrate(fromLevel) {
+  celebrationResume = playing;
+  setPlaying(false, 'city_level_up');
+  celebrating = true;
+  activePanel = null; trayCategory = null; tool = null;
+  render();
+  const unlocked = Object.entries(BUILDINGS).filter(([, def]) => def.unlock === state.level);
+  $('celebration-name').textContent = STAGES[state.level - 1].name;
+  $('celebration-level').textContent = `Lv.${fromLevel} → Lv.${state.level}`;
+  const snapshot = brain.snapshots.at(-1);
+  $('celebration-dna').innerHTML = dnaCard(snapshot.dnaProfile, snapshot.archetype);
+  $('celebration-challenge').textContent = `下一项专属挑战：${brain.currentChallenge.title}`;
+  $('celebration-unlocks').innerHTML = unlocked.length ? `新解锁 ${unlocked.map(([type, def]) => `<span class="celebration-unlock">${art(type)}${def.name}</span>`).join('')}` : state.level === 3 ? '现在可以升级建筑，住进更高的小楼。' : '未来已来，继续建设你的城市。';
+  $('level-celebration').hidden = false;
+  $('game-shell').classList.add('city-leveling');
+  track('level_up_shown', { level: state.level }); persist();
+}
+
+function showDialog(id) {
+  setPlaying(false, 'dialog_opened');
+  document.querySelectorAll('dialog[open]').forEach(d => d.close());
+  setPanel(null);
+  $(id).showModal();
+}
+function openReport() {
+  track('report_viewed'); persist();
+  const r = makeReport(state, log, brain), advice = offlineAdvice(r);
+  $('report-content').innerHTML = `<div class="report-intro">${art('aiva')}<div><div class="report-style">城市成长记录</div><p>第 ${r.day} 天 · ${STAGES[r.level - 1].name}<br>你已经做出 ${r.decisions} 次建设决策。</p></div></div><div class="report-grid">${[[r.population, '城市居民'], [r.happiness + '%', '幸福度'], [r.upgraded, '建筑升级'], [r.built, '累计建造'], [r.bankruptcies, '资金危机'], [r.netIncome, '净收入 / 天']].map(([v, label]) => `<div class="report-stat"><strong>${fmt(v)}</strong><span>${label}</span></div>`).join('')}</div><div class="report-section"><h3>城市成长足迹</h3><ul class="timeline">${r.stageResults.map(s => `<li><span>Lv.${s.level} · ${STAGES[s.level - 1].name}</span><small>${s.completed ? `${s.durationDays} 游戏日 · 已完成` : '正在建设'}</small></li>`).join('')}</ul></div><div class="report-section"><h3>AIVA 留言</h3><p>${escapeHTML(advice.text.replaceAll('晋升城市', '升级城市').replaceAll('Mayor Report', '市长报告'))}</p></div>${state.level >= 4 ? `<div class="report-section"><h3>创新正在发生</h3><p>已积累 ${state.research} 科技，研究中心每日贡献 ${currentStats().researchRate}。</p></div>` : ''}<p class="report-export-hint">保存城市记录，留下这座城的故事。</p>`;
+  showDialog('report-dialog');
+  const p = createPlaytestExport({ playtest, state, log, report: r });
+  $('report-content').insertAdjacentHTML('beforeend', `<section class="report-section playtest-summary"><h3>本次试玩 · Playtest Summary</h3><p>有效游玩 ${(p.activeMs / 60000).toFixed(1)} 分钟 · 首次建造 ${p.firstBuildMs === null ? '尚未发生' : `${(p.firstBuildMs / 1000).toFixed(1)} 秒`}<br>AIVA 打开 ${p.aiva.opened} 次 · 定位 ${p.aiva.located} 次<br>专属挑战 查看 ${p.challenges.viewed} / 标记目标 ${p.challenges.accepted} / 完成 ${p.challenges.completed}</p><small>前台可见且最近 60 秒有操作的时间；暂停阅读计入，离线、后台和游戏倍速不计入。${p.source !== 'fresh_play' ? '这份记录来自演示、导入或旧城市，不纳入新玩家完成率。' : ''}</small></section>`);
+  $('report-content').insertAdjacentHTML('afterbegin', `${dnaCard(r.finalDNAProfile, r.archetype)}<div class="report-traits">${traitCards()}</div><section class="report-section"><h3>AIVA 城市总结</h3><p id="report-story" class="city-story">${escapeHTML(r.story)}</p><button id="report-story-request" class="text-button">请 AIVA 回顾这座城市 ↗</button></section><div class="report-brain-stats"><span>最常建造：${r.mostBuiltType ? BUILDINGS[r.mostBuiltType].name : '尚未建造'}</span><span>缺电 ${r.shortageCount} 次</span><span>AIVA 交谈 ${r.advisorUsage.opened} 次 · 定位 ${r.advisorUsage.located} 次</span><span>专属挑战 ${r.adaptiveCompletion.completed}/${r.adaptiveCompletion.selected} 项完成</span></div>`);
+}
+function exportReport() {
+  track('report_exported'); persist();
+  const data = { format: 'citydna-save', exportedAt: new Date().toISOString(), state, brain, playtest, report: makeReport(state, log, brain), telemetry: log, ui: {...preferences,advisorMode} };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url; link.download = `CityDNA-mayor-report-day-${state.day}.json`; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('城市记录已保存。');
+}
+function exportPlaytest() {
+  track('playtest_exported'); persist();
+  const data = createPlaytestExport({ playtest, state, log, report: makeReport(state, log, brain) });
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' }));
+  const link = document.createElement('a'); link.href = url;
+  link.download = `citydna-playtest-${playtest.id.slice(0, 8)}.json`; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('匿名试玩记录已导出，请自行发给邀请你试玩的人。');
+}
+function toggleDebug(enabled = $('debug-panel').hidden) {
+  debugEnabled = true;
+  $('debug-panel').hidden = !enabled;
+  renderDebug();
+}
+
+$('map').addEventListener('click', event => {
+  const tile = event.target.closest('.tile');
+  if (!tile) return;
+  const x = Number(tile.dataset.x), y = Number(tile.dataset.y), b = buildingAt(state, x, y);
+  if (tool === 'bulldoze') { if (b) perform({ type: 'remove', id: b.id }); else toast('点选要拆除的建筑或道路。'); }
+  else if (b) {
+    selectedId = b.id;
+    activePanel = 'inspector'; trayCategory = null;
+    track('building_inspected', { buildingId: b.id, buildingType: b.type }); persist(); render();
+  } else if (tool) perform({ type: 'build', buildingType: tool, x, y });
+  else if (!isPlotOpen(state, x, y)) toast(`城市 Lv.${plotUnlockLevel(x, y)} 时，这片土地就会开放。`);
+  else { activePanel = null; selectedId = null; trayCategory = null; render(); }
+});
+$('map').addEventListener('pointerover', event => { const tile = event.target.closest('.tile'); if (tile) previewTile(tile); });
+$('map').addEventListener('pointerleave', clearPreview);
+$('map').addEventListener('keydown', event => {
+  const directions = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  const tile = event.target.closest('.tile'), dir = directions[event.key];
+  if (!tile || !dir) return;
+  event.preventDefault();
+  const x = Math.max(0, Math.min(WIDTH - 1, Number(tile.dataset.x) + dir[0])), y = Math.max(0, Math.min(HEIGHT - 1, Number(tile.dataset.y) + dir[1]));
+  $('map').querySelector(`[data-x="${x}"][data-y="${y}"]`)?.focus({ preventScroll: true });
+});
+$('build-dock').addEventListener('click', event => {
+  const category = event.target.closest('[data-category]');
+  if (category) { trayCategory = trayCategory === category.dataset.category ? null : category.dataset.category; activePanel = null; render(); track('build_category_opened', { category: trayCategory }); persist(); }
+  if (event.target.closest('[data-mode="bulldoze"]')) setTool(tool === 'bulldoze' ? null : 'bulldoze');
+});
+$('build-tools').addEventListener('click', event => { const button = event.target.closest('[data-tool]'); if (button && !button.disabled) setTool(button.dataset.tool); });
+$('tray-close').addEventListener('click', () => { trayCategory = null; renderDock(); });
+$('inspect-mode').addEventListener('click', () => setTool(null));
+$('mission-open').addEventListener('click', () => setPanel(activePanel === 'mission' ? null : 'mission'));
+$('city-identity').addEventListener('click', () => setPanel(activePanel === 'mission' ? null : 'mission'));
+$('advisor-open').addEventListener('click', () => { setPlaying(false,'advisor_open'); setPanel(activePanel === 'advisor' ? null : 'advisor'); if (activePanel) { track('advisorOpen');track('advisor_open',{requestedMode:advisorMode}); persist(); } });
+$('advisor-questions').addEventListener('click',event=>{const button=event.target.closest('[data-question]');if(button) askAiva(button.dataset.question);});
+$('mission-panel').addEventListener('click',event=>{if(event.target.closest('#challenge-story-request')) askNarrative('CHALLENGE_STORY');});
+$('mission-panel').addEventListener('click',event=>{if(event.target.closest('#challenge-accept') && brain.currentChallenge && !playtest.acceptedChallenges.includes(brain.currentChallenge.id)) {playtest.acceptedChallenges.push(brain.currentChallenge.id);track('challenge_accepted',{challengeType:brain.currentChallenge.type});persist();renderMission(currentStats());}});
+$('report-content').addEventListener('click',event=>{if(event.target.closest('#report-story-request')) askNarrative('MAYOR_STORY');});
+$('debug-advisor-mode').addEventListener('change',event=>{advisorMode=event.target.value;aivaClient.clear();invalidateAiva();track('advisor_mode',{requested:advisorMode,reason:'experiment-switch'});persist();render();});
+$('planning-open').addEventListener('click',()=>{const opening=$('planning-panel').hidden;$('planning-panel').hidden=!opening;$('planning-open').setAttribute('aria-expanded',String(opening));});
+$('planning-options').addEventListener('click',event=>{const button=event.target.closest('[data-lens]');if(!button)return;planningLens=button.dataset.lens==='NONE'?null:button.dataset.lens;$('planning-caption').textContent=planningLens?PLANNING_LENSES[planningLens]:'选择一个视图，看看城市周边的服务。';document.querySelectorAll('[data-lens]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.lens==='NONE'&&!planningLens)||b.dataset.lens===planningLens)));track('planningLensChanged',{lens:planningLens});renderMap();persist();});
+$('planning-close').addEventListener('click',()=>{$('planning-panel').hidden=true;$('planning-open').setAttribute('aria-expanded','false');});
+$('advisor-locate').addEventListener('click', () => {
+  const diagnosis = aivaView?.diagnosis || diagnoseCity(state, brain), highlights = diagnosisHighlights(state, diagnosis);
+  clearTimeout(locateTimer);
+  locatedTiles = new Map(highlights.map(h => [h.tileId, h]));
+  track('advisorLocate', { reasonCodes: diagnosis.reasonCodes, affectedBuildingIds: diagnosis.affectedBuildingIds, affectedTileIds: diagnosis.affectedTileIds });
+  track('advisor_locate',{reasonCodes:diagnosis.reasonCodes,mode:aivaView?.result.mode || 'LOCAL',affectedTileIds:diagnosis.affectedTileIds});
+  setPanel(null); persist(); renderMap();
+  toast(`已标出 ${highlights.length} 处位置，持续 4 秒。`);
+  locateTimer = setTimeout(() => { locatedTiles.clear(); renderMap(); }, 4000);
+});
+$('advisor-dismiss').addEventListener('click', () => setPanel(null));
+$('advisor-mission').addEventListener('click', () => setPanel('mission'));
+$('mission-panel').addEventListener('click', event => { if (event.target.closest('.close-panel')) setPanel(null); });
+$('advisor-panel').addEventListener('click', event => { if (event.target.closest('.close-panel')) setPanel(null); });
+$('inspector').addEventListener('click', event => {
+  if (event.target.closest('.close-panel')) setPanel(null);
+  if (event.target.closest('#building-upgrade')) perform({ type: 'upgrade', id: selectedId });
+  if (event.target.closest('#building-remove')) perform({ type: 'remove', id: selectedId });
+});
+$('level-up').addEventListener('click', () => perform({ type: 'level_up' }));
+$('next-day').addEventListener('click', () => { if (celebrating) return; flushClock(); advanceSimulation((CLOCK_RULES.settlementMs - brain.clock.elapsedMs % CLOCK_RULES.settlementMs) / brain.clock.speed); persist(); });
+$('auto-toggle').addEventListener('click', () => setPlaying(!playing));
+$('speed-toggle').addEventListener('click', () => { flushClock(); brain.clock.speed = ({ 1: 2, 2: 4, 4: 1 })[brain.clock.speed]; track('timeSpeedChanged', { speed: brain.clock.speed, paused: !playing }); renderTime(); persist(); });
+$('celebration-continue').addEventListener('click', () => { celebrating = false; $('level-celebration').hidden = true; $('game-shell').classList.remove('city-leveling'); if (celebrationResume) setPlaying(true, 'level_up_finished'); });
+$('menu-open').addEventListener('click', () => showDialog('menu-dialog'));
+$('help-open').addEventListener('click', () => { track('help_viewed'); persist(); showDialog('help-dialog'); });
+$('report-open').addEventListener('click', openReport);
+$('export-report').addEventListener('click', exportReport);
+$('export-playtest').addEventListener('click', exportPlaytest);
+$('end-playtest').addEventListener('click', openReport);
+$('tutorial-skip').addEventListener('click', () => { playtest.tutorial.skipped = true; track('tutorial_skipped'); persist(); renderTutorial(); });
+$('debug-export').addEventListener('click', exportReport);
+$('debug-close').addEventListener('click', () => toggleDebug(false));
+function loadCityRecord(data, backup = true) {
+  const nextLog = data.log || data.telemetry;
+  if (!validateState(data.state) || !validateLog(nextLog) || (data.brain && !validateBrain(data.brain))) throw new Error('城市记录不完整或已损坏，当前城市保留。');
+  const nextBrain = migrateBrainV04(data.brain || createBrain(data.state));
+  // 替换前完整保留当前城市；若备份存储失败则不替换。
+  if (backup) { syncPlayTime(); localStorage.setItem(`${STORAGE_KEY}.before-import`, JSON.stringify({ state, log, brain, playtest })); }
+  setPlaying(false, 'city_import');
+  state = structuredClone(data.state); log = structuredClone(nextLog); brain = structuredClone(nextBrain);
+  playtest = !backup && validatePlaytest(data.playtest) ? structuredClone(data.playtest) : createPlaytest(data.fixture ? 'demo' : 'imported_save', deviceCategory());
+  // Imported logs belong to a different timing origin; never mix their activeMs.
+  if (backup) for (const event of log.events) delete event.payload.activeMs;
+  beginPlaySession();
+  if(['AUTO','LOCAL','LLM'].includes(data.ui?.advisorMode)) advisorMode=data.ui.advisorMode;
+  invalidateAiva();aivaClient.clear();lastAdvice=null;planningLens=null;
+  locatedTiles.clear(); selectedId = null; activePanel = null; tool = null; trayCategory = null; resumed = true;
+  track('cityImported', { fixture: data.fixture || null });
+  document.querySelectorAll('dialog[open]').forEach(d => d.close());
+  render(); persist(); toast('城市已载入，时间暂停。');
+}
+$('demo-open').addEventListener('click', () => { $('import-feedback').textContent = ''; showDialog('demo-dialog'); });
+$('demo-dialog').addEventListener('click', event => {
+  const choice = event.target.closest('[data-scenario]');
+  if (!choice) return;
+  try { loadCityRecord(createDemoScenario(choice.dataset.scenario)); } catch (error) { $('import-feedback').textContent = error.message; }
+});
+$('import-save').addEventListener('change', async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    if (file.size > 6e6) throw new Error('城市记录超过 6 MB，无法读取。');
+    loadCityRecord(JSON.parse(await file.text()));
+  } catch (error) { $('import-feedback').textContent = `未载入：${error.message}`; }
+  event.target.value = '';
+});
+$('restore-city').addEventListener('click', () => {
+  try {
+    const raw = localStorage.getItem(`${STORAGE_KEY}.before-import`);
+    if (!raw) throw new Error('还没有替换前记录。');
+    loadCityRecord(JSON.parse(raw), false);
+  } catch (error) { $('import-feedback').textContent = error.message; }
+});
+$('new-game-open').addEventListener('click', () => { $('variant').value = state.variant; $('variant-field').hidden = !debugEnabled; showDialog('new-game-dialog'); });
+$('new-game-confirm').addEventListener('click', () => {
+  state = createInitialState($('variant').value); log = createLog();
+  brain = createBrain(state); locatedTiles.clear();
+  playtest = createPlaytest('fresh_play', deviceCategory()); beginPlaySession();
+  invalidateAiva();aivaClient.clear();lastAdvice=null;planningLens=null;
+  preferences = { progress: .25, lighting: 'cycle' };
+  clearTimeout(celebrationTimer); celebrating = false;
+  $('level-celebration').hidden = true; $('game-shell').classList.remove('city-leveling');
+  selectedId = null; activePanel = null; trayCategory = null; tool = null; resumed = false;
+  $('new-game-dialog').close();
+  track('session_started', { resumed: false, reason: 'new_game' }); track('level_started', { enteredLevel: 1 }); persist(); render();
+});
+document.querySelectorAll('.dialog-close').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
+document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => {
+  if (event.target !== dialog) return;
+  const r = dialog.getBoundingClientRect();
+  if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close();
+}));
+document.addEventListener('keydown', event => {
+  if (event.ctrlKey || event.altKey || event.metaKey || ['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName) || document.querySelector('dialog[open]') || celebrating) return;
+  if (event.key === 'Escape') { setTool(null); $('debug-panel').hidden = true; }
+  else if (event.key.toLowerCase() === 'd') toggleDebug();
+  else if (event.key.toLowerCase() === 'b') setTool(tool === 'bulldoze' ? null : 'bulldoze');
+  else if (event.code === 'Space' && !event.target.closest('button,summary')) { event.preventDefault(); setPlaying(!playing); }
+  else { const entry = Object.entries(BUILDINGS).find(([, def]) => def.shortcut === event.key); if (entry) { event.preventDefault(); setTool(entry[0]); } }
+});
+for (const name of ['pointerdown','keydown','touchstart']) document.addEventListener(name, () => playClock.interact(), { passive: true });
+document.addEventListener('visibilitychange', () => { playClock.visibility(!document.hidden); if (document.hidden && playing) setPlaying(false, 'tab_hidden'); persist(false); });
+window.addEventListener('resize', () => renderHUD(currentStats()));
+window.addEventListener('pagehide', () => { flushClock(); if (clockTimer) clearInterval(clockTimer); playing = false; track('session_ended'); playClock.visibility(false); persist(false); });
+window.addEventListener('pageshow', () => playClock.visibility(!document.hidden));
+setInterval(() => { syncPlayTime(); if (playtest.activeMs >= 600000 && !playtest.reminderShown) { playtest.reminderShown = true; toast('试玩约 10 分钟啦。菜单 → 结束试玩，可回顾并导出匿名记录。'); } persist(false); }, 5000);
+
+track('session_started', { resumed });
+if (!resumed) { track('levelStart', { enteredLevel: state.level }); track('level_started', { enteredLevel: state.level }); }
+const initialObservations = []; observeCity(state, brain, initialObservations); recordSimulationEvents(initialObservations);
+render(); persist();
+if (debugEnabled) toggleDebug(true);
+if (loadMessage) toast(loadMessage, true);
+
+</script>
+<dialog id="demo-dialog"><div class="dialog-heading"><div><small>CityDNA · 两种建设，两种未来</small><h2>城市档案</h2></div><button class="dialog-close close-panel" aria-label="关闭城市档案">×</button></div><p class="muted">演示城市是预设的 Lv.3 设计样本。载入会替换当前城市，并自动保存一份替换前记录，可用下方按钮恢复。</p><div class="demo-choices"><button class="button secondary" data-scenario="industrial">A · 工业扩张城<br><small>高增长，绿色转型挑战</small></button><button class="button secondary" data-scenario="green">B · 绿色规划城<br><small>绿色街区，平衡扩张挑战</small></button></div><label class="import-label">读取之前导出的 JSON 城市记录<input id="import-save" type="file" accept=".json,application/json"></label><button id="restore-city" class="button secondary">恢复替换前的城市</button><p id="import-feedback" role="status"></p></dialog></body>
+</html>
