@@ -1,2 +1,9 @@
-# citydna-playtest
-CityDNA - Adaptive City Builder. Static playtest with a local AIVA advisor.
+# CityDNA — Adaptive City Builder
+
+城市经营 Demo，支持同一城市升级、本地存档、City DNA、自适应挑战与匿名试玩导出。
+
+双击 index.html 可离线游玩，也可将这三个文件发布到静态托管平台，确保 index.html 位于网站根目录。
+
+本静态版的 AIVA 使用本地建议；没有在线模型服务，不能作为真实 AI 验收。网页托管免费不代表中国大陆网络一定可访问，部署后需要实测。
+
+更新版本时重新导出并替换网站文件；保留原网址可继续读取同一浏览器的兼容存档。
